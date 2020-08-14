@@ -20,7 +20,7 @@ setup_requires = [
 ]
 
 install_requires = [
-   'flask-taxonomies>=6.0.0'
+   # 'flask-taxonomies>= 7.0.0a10'
 ]
 
 packages = find_packages()
