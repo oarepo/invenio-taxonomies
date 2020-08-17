@@ -20,7 +20,7 @@ setup_requires = [
 ]
 
 install_requires = [
-   # 'flask-taxonomies>= 7.0.0a10'
+    # 'flask-taxonomies>= 7.0.0a10'
 ]
 
 packages = find_packages()
@@ -46,6 +46,9 @@ setup(
     include_package_data=True,
     platforms='any',
     entry_points={
+        'flask.commands': [
+            'taxonomies = invenio_taxonomies.cli:taxonomies',
+        ]
         # TODO: vymyslet napojení na InvenioDB
         # 'invenio_db.models': [
         #     'invenio_oarepo_oai_pmh_harvester = invenio_oarepo_oai_pmh_harvester.models',
