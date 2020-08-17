@@ -15,7 +15,6 @@ class InvenioTaxonomies(object):
         self.init_config(app)
         FlaskTaxonomies(app)
         app.register_blueprint(blueprint, url_prefix=app.config['FLASK_TAXONOMIES_URL_PREFIX'])
-        # self.init_db(app)
 
     def init_config(self, app):
         from invenio_taxonomies import config
