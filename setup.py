@@ -7,8 +7,7 @@ import os
 from setuptools import find_packages, setup
 
 extras_require = {
-    "devel": ['oarepo[deploy-es7,taxonomies,draft]>=3.2.1.2'],
-    "docs": ["sphinx"]
+    "devel": ['oarepo[deploy-es7]>=3.2.1.2'],
 }
 tests_require = [
     'pytest',
@@ -20,7 +19,7 @@ setup_requires = [
 ]
 
 install_requires = [
-    # 'flask-taxonomies>= 7.0.0a10'
+    # 'flask-taxonomies>= 7.0.0a12'
 ]
 
 packages = find_packages()
