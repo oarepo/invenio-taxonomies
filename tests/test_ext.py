@@ -13,11 +13,11 @@ def test_init():
     """Test extension initialization."""
     app = Flask('testapp')
     InvenioTaxonomies(app)
-    assert 'invenio-taxonomies' in app.extensions
+    assert 'flask-taxonomies' in app.extensions
 
     app = Flask('testapp')
     ext = InvenioTaxonomies()
-    assert 'invenio-taxonomies' not in app.extensions
+    assert 'flask-taxonomies' not in app.extensions
     ext.init_app(app)
-    assert 'invenio-taxonomies' in app.extensions
+    assert 'flask-taxonomies' in app.extensions
     assert app.blueprints['flask_taxonomies']
