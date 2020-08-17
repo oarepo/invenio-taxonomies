@@ -20,5 +20,5 @@ class InvenioTaxonomies(object):
     def init_config(self, app):
         from invenio_taxonomies import config
         for k in dir(config):
-            if k.startswith('FLASK_TAXONOMIES_'):
+            if k.startswith('FLASK_TAXONOMIES_'):  # pragma: no cover
                 app.config.setdefault(k, getattr(config, k))

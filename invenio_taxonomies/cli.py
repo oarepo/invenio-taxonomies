@@ -17,6 +17,6 @@ def init_db():
     Management task that initialize database tables.
     """
     engine = db_.engine
-    if not database_exists(engine.url):
+    if not database_exists(engine.url):  # pragma: no cover
         create_database(engine.url)
     Base.metadata.create_all(engine)
