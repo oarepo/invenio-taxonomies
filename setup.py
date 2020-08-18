@@ -20,6 +20,8 @@ setup_requires = [
 
 install_requires = [
     # 'flask-taxonomies>= 7.0.0a12'
+    'flatten_json>=0.1.7,<1.0.0'
+    'openpyxl>=3.0.4,<4.0.0'
 ]
 
 packages = find_packages()
