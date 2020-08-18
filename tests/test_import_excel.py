@@ -3,8 +3,10 @@ import subprocess
 from pprint import pprint
 
 import pytest
+from flask_taxonomies.models import TaxonomyTerm
 from flask_taxonomies.proxies import current_flask_taxonomies
 
+from invenio_taxonomies.import_export import import_taxonomy
 from invenio_taxonomies.import_export.import_excel import extract_data, read_block, \
     convert_data_to_dict, create_update_taxonomy, create_update_terms
 
@@ -40,8 +42,12 @@ def test_convert_data_to_dict(taxonomy_data, result_dict):
 
 
 def test_create_update_taxonomy(app, db, taxonomy_header):
-    subprocess.run(["invenio", "taxonomies", "init"])  # TODO: přesunout to inicialitace databáze
+    subprocess.run(["invenio", "taxonomies", "init"])  # TODO: přesunout do inicialitace databáze
     create_update_taxonomy(taxonomy_header, False)
+    taxonomy = current_flask_taxonomies.get_taxonomy("licenses", fail=True)
+    assert taxonomy is not None
+    create_update_taxonomy(taxonomy_header, False)
+    create_update_taxonomy(taxonomy_header, True)
     taxonomy = current_flask_taxonomies.get_taxonomy("licenses", fail=True)
     assert taxonomy is not None
 
@@ -56,8 +62,20 @@ def test_create_update_terms(app, db, taxonomy_data):
             }
     }
                                                         )
-    create_update_terms(taxonomy, taxonomy_data)
+    create_update_terms(taxonomy, taxonomy_data)  # creating
+    create_update_terms(taxonomy, taxonomy_data)  # updating
     pprint(current_flask_taxonomies.list_taxonomy(taxonomy).all())
+
+
+def test_import_taxonomy(app, db):
+    subprocess.run(["invenio", "taxonomies", "init"])
+    file_path = pathlib.Path(__file__).parent.absolute()
+    data_path = file_path / "data" / "licenses_v2.xlsx"
+    import_taxonomy(str(data_path))
+    taxonomy = current_flask_taxonomies.list_taxonomies(session=None).all()[0]
+    taxonomy_list = current_flask_taxonomies.list_taxonomy(taxonomy).all()
+    assert len(taxonomy_list) > 0
+    assert isinstance(taxonomy_list[1], TaxonomyTerm)
 
 
 @pytest.fixture()

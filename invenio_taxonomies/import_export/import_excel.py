@@ -28,12 +28,16 @@ def create_update_terms(taxonomy, taxonomy_data):
     stack = [taxonomy]
     for term_dict in convert_data_to_dict(taxonomy_data):
         level = int(term_dict.pop('level'))
-        slug = term_dict.pop('slug')
+        try:
+            slug = term_dict.pop('slug')
+        except KeyError:
+            slug = None
         while level < len(stack):
             stack.pop()
         if not slug:
-            slug = slugify(next(filter(lambda x: x['lang'] == 'cs', term_dict['title']))['value'])
-
+            slug = slugify(term_dict["title"]["cs"])
+        else:
+            slug = slugify(slug)
         last_stack = stack[-1]
         if isinstance(last_stack, Taxonomy):
             identification = TermIdentification(taxonomy=taxonomy, slug=slug)
@@ -63,7 +67,7 @@ def create_update_taxonomy(data, drop) -> Taxonomy:
         merged_dict.update(tax_dict)
         current_flask_taxonomies.update_taxonomy(taxonomy, merged_dict)
     else:
-        current_flask_taxonomies.create_taxonomy(code, extra_data=tax_dict)
+        taxonomy = current_flask_taxonomies.create_taxonomy(code, extra_data=tax_dict)
     db.session.commit()
     return taxonomy
 
