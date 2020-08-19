@@ -2,11 +2,13 @@ from __future__ import absolute_import, print_function
 
 import os
 import shutil
+import subprocess
 import tempfile
 from pathlib import Path
 
 import pytest
 from flask import Flask
+from flask_taxonomies.proxies import current_flask_taxonomies
 from invenio_db import InvenioDB
 from invenio_db import db as db_
 from sqlalchemy_utils import database_exists, create_database, drop_database
@@ -53,9 +55,22 @@ def db(app):
     if not database_exists(str(db_.engine.url)):
         create_database(db_.engine.url)
     db_.create_all()
-
+    subprocess.run(["invenio", "taxonomies", "init"])
     yield db_
 
     # Explicitly close DB connection
     db_.session.close()
     db_.drop_all()
+
+
+@pytest.fixture
+def taxonomy(app, db):
+    taxonomy = current_flask_taxonomies.create_taxonomy("test_taxonomy", extra_data={
+        "title":
+            {
+                "cs": "test_taxonomy",
+                "en": "test_taxonomy"
+            }
+    })
+    db.session.commit()
+    return taxonomy

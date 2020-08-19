@@ -42,7 +42,7 @@ def test_convert_data_to_dict(taxonomy_data, result_dict):
 
 
 def test_create_update_taxonomy(app, db, taxonomy_header):
-    subprocess.run(["invenio", "taxonomies", "init"])  # TODO: přesunout do inicializace databáze
+    # subprocess.run(["invenio", "taxonomies", "init"])  # TODO: přesunout do inicializace databáze
     create_update_taxonomy(taxonomy_header, False)
     taxonomy = current_flask_taxonomies.get_taxonomy("licenses", fail=True)
     assert taxonomy is not None
@@ -53,7 +53,7 @@ def test_create_update_taxonomy(app, db, taxonomy_header):
 
 
 def test_create_update_terms(app, db, taxonomy_data):
-    subprocess.run(["invenio", "taxonomies", "init"])
+    # subprocess.run(["invenio", "taxonomies", "init"])
     taxonomy = current_flask_taxonomies.create_taxonomy("licenses", extra_data={
         "title":
             {
@@ -68,7 +68,7 @@ def test_create_update_terms(app, db, taxonomy_data):
 
 
 def test_import_taxonomy(app, db):
-    subprocess.run(["invenio", "taxonomies", "init"])
+    # subprocess.run(["invenio", "taxonomies", "init"])
     file_path = pathlib.Path(__file__).parent.absolute()
     data_path = file_path / "data" / "licenses_v2.xlsx"
     import_taxonomy(str(data_path))

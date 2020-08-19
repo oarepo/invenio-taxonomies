@@ -11,7 +11,7 @@ def test_create_taxonomy(app, db):
     """
 
     # management task that creates flask-taxonomies tables
-    subprocess.run(["invenio", "taxonomies", "init"])
+    # subprocess.run(["invenio", "taxonomies", "init"])
 
     current_flask_taxonomies.create_taxonomy("root", extra_data={}, session=db.session)
     db.session.commit()
@@ -22,7 +22,7 @@ def test_create_taxonomy(app, db):
 
 def test_api(app, db):
     # management task that creates flask-taxonomies tables
-    subprocess.run(["invenio", "taxonomies", "init"])
+    # subprocess.run(["invenio", "taxonomies", "init"])
     taxonomy = current_flask_taxonomies.create_taxonomy("root", extra_data={}, session=db.session)
     db.session.commit()
 
