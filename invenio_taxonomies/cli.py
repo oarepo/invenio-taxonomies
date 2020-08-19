@@ -33,3 +33,11 @@ def init_db():
 def import_taxonomy(taxonomy_file, int_conversions, str_args, bool_args, drop):
     from .import_export import import_taxonomy
     import_taxonomy(taxonomy_file, int_conversions, str_args, bool_args, drop)
+
+
+@taxonomies.command('export')
+@click.argument('taxonomy_code')
+@with_appcontext
+def export_taxonomy(taxonomy_code):
+    from .import_export import export_taxonomy
+    export_taxonomy(taxonomy_code)
