@@ -42,7 +42,7 @@ def test_convert_data_to_dict(taxonomy_data, result_dict):
 
 
 def test_create_update_taxonomy(app, db, taxonomy_header):
-    subprocess.run(["invenio", "taxonomies", "init"])  # TODO: přesunout do inicialitace databáze
+    subprocess.run(["invenio", "taxonomies", "init"])  # TODO: přesunout do inicializace databáze
     create_update_taxonomy(taxonomy_header, False)
     taxonomy = current_flask_taxonomies.get_taxonomy("licenses", fail=True)
     assert taxonomy is not None

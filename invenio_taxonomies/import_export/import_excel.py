@@ -6,14 +6,18 @@ from invenio_db import db
 from slugify import slugify
 
 
-def import_taxonomy(taxonomy_file, drop=False):
+def import_taxonomy(taxonomy_file,
+                    str_args: tuple = tuple(),
+                    int_conversions: tuple = tuple(),
+                    bool_args: tuple = tuple(),
+                    drop=False):
     data = extract_data(taxonomy_file)
 
     taxonomy_header, row = read_block(data, 0)
     taxonomy_data, row = read_block(data, row)
 
     taxonomy = create_update_taxonomy(taxonomy_header, drop)
-    create_update_terms(taxonomy, taxonomy_data)
+    create_update_terms(taxonomy, taxonomy_data, str_args, int_conversions, bool_args)
 
 
 def extract_data(taxonomy_file):
@@ -24,9 +28,14 @@ def extract_data(taxonomy_file):
     return data
 
 
-def create_update_terms(taxonomy, taxonomy_data):
+def create_update_terms(taxonomy,
+                        taxonomy_data,
+                        str_args: tuple = tuple(),
+                        int_conversions: tuple = tuple(),
+                        bool_args: tuple = tuple()):
     stack = [taxonomy]
-    for term_dict in convert_data_to_dict(taxonomy_data):
+    for term_dict in convert_data_to_dict(taxonomy_data, str_args=str_args,
+                                          int_conversions=int_conversions, bool_args=bool_args):
         level = int(term_dict.pop('level'))
         try:
             slug = term_dict.pop('slug')
@@ -72,12 +81,22 @@ def create_update_taxonomy(data, drop) -> Taxonomy:
     return taxonomy
 
 
-def convert_data_to_dict(data: list) -> list:
+def convert_data_to_dict(data: list,
+                         str_args: tuple = tuple(),
+                         int_conversions: tuple = tuple(),
+                         bool_args: tuple = tuple()
+                         ) -> list:
     """
     Function that translate excel flatten json into standard nested json.
 
     :param data: List of lists, where each list represent row in excel table.
     :type data: list
+    :param str_args:
+    :type str_args:
+    :param int_conversions:
+    :type int_conversions:
+    :param bool_args:
+    :type bool_args:
     :return: list of nested dictionaries
     :rtype: list
     """
@@ -88,7 +107,14 @@ def convert_data_to_dict(data: list) -> list:
         row_dict = {}
         for c, column in enumerate(row):
             if column:
-                row_dict[header[c]] = column
+                if header[c] in str_args:
+                    row_dict[header[c]] = str(column)
+                elif header[c] in int_conversions:
+                    row_dict[header[c]] = int(column)
+                elif header[c] in bool_args:
+                    row_dict[header[c]] = bool(column)
+                else:
+                    row_dict[header[c]] = column
 
         res.append(row_dict)
     return [unflatten_list(x) for x in res]
