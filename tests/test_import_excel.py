@@ -34,7 +34,8 @@ def test_read_block_2():
     data_path = file_path / "data" / "licenses_v2.xlsx"
     data = extract_data(str(data_path))
     taxonomy_data, row = read_block(data, 4)
-    assert taxonomy_data[0] == ['level', 'slug', 'title_cs', 'title_en', 'icon', 'related_uri']
+    assert taxonomy_data[0] == ['level', 'slug', 'title_cs', 'title_en', 'icon', 'related_uri',
+                                'title_sk']
 
 
 def test_convert_data_to_dict(taxonomy_data, result_dict):

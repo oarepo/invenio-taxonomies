@@ -1,5 +1,3 @@
-import subprocess
-
 from flask_taxonomies.models import TaxonomyTerm
 from flask_taxonomies.proxies import current_flask_taxonomies
 from flask_taxonomies.term_identification import TermIdentification
@@ -21,8 +19,6 @@ def test_create_taxonomy(app, db):
 
 
 def test_api(app, db):
-    # management task that creates flask-taxonomies tables
-    # subprocess.run(["invenio", "taxonomies", "init"])
     taxonomy = current_flask_taxonomies.create_taxonomy("root", extra_data={}, session=db.session)
     db.session.commit()
 
