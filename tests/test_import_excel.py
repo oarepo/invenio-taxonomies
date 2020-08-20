@@ -1,6 +1,4 @@
 import pathlib
-import subprocess
-from pprint import pprint
 
 import pytest
 from flask_taxonomies.models import TaxonomyTerm
@@ -13,9 +11,13 @@ from invenio_taxonomies.import_export.import_excel import extract_data, read_blo
 
 def test_extract_data():
     file_path = pathlib.Path(__file__).parent.absolute()
-    data_path = file_path / "data" / "licenses.xlsx"
+    data_path = file_path / "data" / "licenses_v2.xlsx"
     data = extract_data(str(data_path))
-    pprint(data)
+    assert data[0][0].value == "code"
+    assert data[0][1].value == "title_cs"
+    assert data[0][2].value == "title_en"
+    assert data[4][0].value == "level"
+    assert data[4][1].value == "slug"
 
 
 def test_read_block_1():
@@ -25,7 +27,6 @@ def test_read_block_1():
     taxonomy_header, row = read_block(data, 0)
     assert taxonomy_header == [['code', 'title_cs', 'title_en'],
                                ['licenses', 'Licence', 'Licenses']]
-    print(taxonomy_header, row)
 
 
 def test_read_block_2():
@@ -42,7 +43,6 @@ def test_convert_data_to_dict(taxonomy_data, result_dict):
 
 
 def test_create_update_taxonomy(app, db, taxonomy_header):
-    # subprocess.run(["invenio", "taxonomies", "init"])  # TODO: přesunout do inicializace databáze
     create_update_taxonomy(taxonomy_header, False)
     taxonomy = current_flask_taxonomies.get_taxonomy("licenses", fail=True)
     assert taxonomy is not None
@@ -53,7 +53,6 @@ def test_create_update_taxonomy(app, db, taxonomy_header):
 
 
 def test_create_update_terms(app, db, taxonomy_data):
-    # subprocess.run(["invenio", "taxonomies", "init"])
     taxonomy = current_flask_taxonomies.create_taxonomy("licenses", extra_data={
         "title":
             {
@@ -64,11 +63,14 @@ def test_create_update_terms(app, db, taxonomy_data):
                                                         )
     create_update_terms(taxonomy, taxonomy_data)  # creating
     create_update_terms(taxonomy, taxonomy_data)  # updating
-    pprint(current_flask_taxonomies.list_taxonomy(taxonomy).all())
+    res = current_flask_taxonomies.list_taxonomy(taxonomy).all()
+    assert res[0].slug == "cc"
+    assert res[0].level == 0
+    assert res[1].slug == "cc/1-0"
+    assert res[1].level == 1
 
 
 def test_import_taxonomy(app, db):
-    # subprocess.run(["invenio", "taxonomies", "init"])
     file_path = pathlib.Path(__file__).parent.absolute()
     data_path = file_path / "data" / "licenses_v2.xlsx"
     import_taxonomy(str(data_path))
