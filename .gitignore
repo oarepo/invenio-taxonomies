@@ -133,3 +133,5 @@ dmypy.json
 requirements_diff/
 
 *.db
+
+*.xlsx#
