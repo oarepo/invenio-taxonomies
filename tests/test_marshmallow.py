@@ -5,7 +5,7 @@ from flask_taxonomies.models import TaxonomyTerm
 from marshmallow import ValidationError
 from sqlalchemy.orm.exc import NoResultFound
 
-from invenio_taxonomies.marshmallow import TaxonomyField, extract_link, get_term_by_link, \
+from oarepo_taxonomies.marshmallow import TaxonomyField, extract_link, get_term_by_link, \
     get_slug_from_link
 
 

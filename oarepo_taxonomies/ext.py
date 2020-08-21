@@ -2,7 +2,7 @@ from flask_taxonomies.ext import FlaskTaxonomies
 from flask_taxonomies.views import blueprint
 
 
-class InvenioTaxonomies(object):
+class OarepoTaxonomies(object):
     """App Extension for Flask Taxonomies."""
 
     def __init__(self, app=None, db=None):
@@ -17,7 +17,7 @@ class InvenioTaxonomies(object):
         app.register_blueprint(blueprint, url_prefix=app.config['FLASK_TAXONOMIES_URL_PREFIX'])
 
     def init_config(self, app):
-        from invenio_taxonomies import config
+        from oarepo_taxonomies import config
         for k in dir(config):
             if k.startswith('FLASK_TAXONOMIES_'):  # pragma: no cover
                 app.config.setdefault(k, getattr(config, k))

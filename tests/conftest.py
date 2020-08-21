@@ -14,7 +14,7 @@ from invenio_db import InvenioDB
 from invenio_db import db as db_
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
-from invenio_taxonomies.ext import InvenioTaxonomies
+from oarepo_taxonomies.ext import OarepoTaxonomies
 
 
 @pytest.yield_fixture()
@@ -34,7 +34,7 @@ def app():
     )
 
     InvenioDB(app)
-    InvenioTaxonomies(app)
+    OarepoTaxonomies(app)
     with app.app_context():
         # app.register_blueprint(taxonomies_blueprint)
         yield app
@@ -52,7 +52,8 @@ def db(app):
             'SQLALCHEMY_DATABASE_URI',
             f'sqlite:////{parent_path}/database.db')
     )
-    drop_database(db_.engine.url)
+    if database_exists(str(db_.engine.url)):
+        drop_database(db_.engine.url)
     if not database_exists(str(db_.engine.url)):
         create_database(db_.engine.url)
     db_.create_all()

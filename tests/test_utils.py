@@ -1,7 +1,7 @@
 from flask_taxonomies.constants import INCLUDE_DESCENDANTS
 from flask_taxonomies.models import Representation
 
-from invenio_taxonomies.utils import get_taxonomy_json
+from oarepo_taxonomies.utils import get_taxonomy_json
 
 
 def test_get_taxonomy_term(app, db, taxonomy_tree):

@@ -4,8 +4,8 @@ import pytest
 from flask_taxonomies.models import TaxonomyTerm
 from flask_taxonomies.proxies import current_flask_taxonomies
 
-from invenio_taxonomies.import_export import import_taxonomy
-from invenio_taxonomies.import_export.import_excel import extract_data, read_block, \
+from oarepo_taxonomies.import_export import import_taxonomy
+from oarepo_taxonomies.import_export.import_excel import extract_data, read_block, \
     convert_data_to_dict, create_update_taxonomy, create_update_terms
 
 

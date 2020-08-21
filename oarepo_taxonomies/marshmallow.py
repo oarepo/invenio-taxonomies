@@ -8,7 +8,7 @@ from marshmallow import Schema, INCLUDE, pre_load, ValidationError
 from marshmallow.fields import Nested
 from sqlalchemy.orm.exc import NoResultFound
 
-from invenio_taxonomies.utils import get_taxonomy_json
+from oarepo_taxonomies.utils import get_taxonomy_json
 
 
 class TaxonomyLinksSchemaV1(Schema):
