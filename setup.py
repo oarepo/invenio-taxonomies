@@ -8,10 +8,10 @@ from setuptools import find_packages, setup
 
 tests_require = [
     'pytest',
-    'pytest-cov'
+    'pytest-cov',
+    'oarepo[deploy-es7]>=3.2.1.2'
 ]
 extras_require = {
-    "devel": ['oarepo[deploy-es7]>=3.2.1.2', *tests_require],
     "tests": tests_require
 }
 

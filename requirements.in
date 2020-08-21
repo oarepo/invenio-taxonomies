@@ -1,4 +1,0 @@
-oarepo[deploy-es7]>=3.2.1.2
-flask-taxonomies>= 7.0.0a13
-flatten_json>=0.1.7<1.0.0
-openpyxl>=3.0.4<4.0.0
