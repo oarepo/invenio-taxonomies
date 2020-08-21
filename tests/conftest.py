@@ -22,11 +22,15 @@ def app():
     instance_path = tempfile.mkdtemp()
     app = Flask('testapp', instance_path=instance_path)
 
+    # os.environ["INVENIO_INSTANCE_PATH"] = instance_path
+
     app.config.update(
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
-        SQLALCHEMY_ECHO=True,
+        # SQLALCHEMY_ECHO=True,
         SERVER_NAME='127.0.0.1:5000',
+        INVENIO_INSTANCE_PATH=instance_path
     )
+    print(os.environ.get("INVENIO_INSTANCE_PATH"))
 
     InvenioDB(app)
     OarepoTaxonomies(app)
@@ -42,10 +46,10 @@ def db(app):
     """Create database for the tests."""
     dir_path = os.path.dirname(__file__)
     parent_path = str(Path(dir_path).parent)
+    db_path = os.environ.get('SQLALCHEMY_DATABASE_URI', f'sqlite:////{parent_path}/database.db')
+    os.environ["INVENIO_SQLALCHEMY_DATABASE_URI"] = db_path
     app.config.update(
-        SQLALCHEMY_DATABASE_URI=os.environ.get(
-            'SQLALCHEMY_DATABASE_URI',
-            f'sqlite:////{parent_path}/database.db')
+        SQLALCHEMY_DATABASE_URI=db_path
     )
     if database_exists(str(db_.engine.url)):
         drop_database(db_.engine.url)
