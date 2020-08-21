@@ -26,7 +26,6 @@ def app():
 
     app.config.update(
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
-        # SQLALCHEMY_ECHO=True,
         SERVER_NAME='127.0.0.1:5000',
         INVENIO_INSTANCE_PATH=instance_path
     )
