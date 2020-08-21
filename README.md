@@ -145,7 +145,7 @@ and for individual Taxonomy Term:
 ```
 
 and tree structure:
-
+<pre>
 cities  
 └-eu  
   |--cz  
@@ -157,5 +157,6 @@ cities
   └--gb  
      |--lon   
      └--man      
-  
+</pre>  
+
 ### Marshmallow
