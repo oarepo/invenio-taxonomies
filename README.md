@@ -159,4 +159,44 @@ cities
      └--man      
 </pre>  
 
+### Export to Excel
+
+Excel export is created using a management task `invenio taxonomies export TAXONOMY_CODE`.
+
+An xlsx and csv file is created in the current folder where the task was run.
+
 ### Marshmallow
+```python
+from marshmallow import Schema
+from marshmallow.fields import Nested
+from oarepo_taxonomies.marshmallow import TaxonomyField
+
+
+class UserSchema(Schema):
+    taxonomy = Nested(TaxonomyField)
+    # ... user data
+
+random_user_data = {
+        "created_at": "2014-08-11T05:26:03.869245",
+        "email": "ken@yahoo.com",
+        "name": "Ken",
+        "taxonomy": {
+            "links": {
+                "self": "http://localhost/api/2.0/taxonomies/test_taxonomy/a/b"
+            }
+        }
+    }
+schema = TaxonomyField()   
+json = schema.load(random_user_data)
+
+```
+
+The Marshmallow module serialize Taxonomy and dereference reference from links/self.
+The module provides the Marshmallo subschema `TaxonomyField`, which can be freely used in the user schema.
+TaxonomyField receives any user data and checks if the user data is JSON/dict or string.
+
+If the user data is JSON/dict, then it looks for the links/self and fetch data form taxonomy.
+The data provided by the user and are also in the taxonomy are overwritten. Other user data are kept.
+
+If the user data is of type string, Marshmallow will try to find a link to the taxonomy and return
+its entire representation.
