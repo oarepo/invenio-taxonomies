@@ -1,5 +1,3 @@
-from pprint import pprint
-
 from flask_taxonomies.constants import INCLUDE_DESCENDANTS
 from flask_taxonomies.models import Representation
 
