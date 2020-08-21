@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 from flask_taxonomies.proxies import current_flask_taxonomies
 
-from invenio_taxonomies.import_export import export_taxonomy, import_taxonomy
-from invenio_taxonomies.import_export.export_excel import get_taxonomy_header_dict, \
+from oarepo_taxonomies.import_export import export_taxonomy, import_taxonomy
+from oarepo_taxonomies.import_export.export_excel import get_taxonomy_header_dict, \
     get_taxonomy_terms_list
 
 

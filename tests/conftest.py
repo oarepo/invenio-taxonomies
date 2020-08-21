@@ -9,11 +9,12 @@ from pathlib import Path
 import pytest
 from flask import Flask
 from flask_taxonomies.proxies import current_flask_taxonomies
+from flask_taxonomies.term_identification import TermIdentification
 from invenio_db import InvenioDB
 from invenio_db import db as db_
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
-from invenio_taxonomies.ext import InvenioTaxonomies
+from oarepo_taxonomies.ext import OarepoTaxonomies
 
 
 @pytest.yield_fixture()
@@ -33,7 +34,7 @@ def app():
     )
 
     InvenioDB(app)
-    InvenioTaxonomies(app)
+    OarepoTaxonomies(app)
     with app.app_context():
         # app.register_blueprint(taxonomies_blueprint)
         yield app
@@ -51,7 +52,8 @@ def db(app):
             'SQLALCHEMY_DATABASE_URI',
             f'sqlite:////{parent_path}/database.db')
     )
-    drop_database(db_.engine.url)
+    if database_exists(str(db_.engine.url)):
+        drop_database(db_.engine.url)
     if not database_exists(str(db_.engine.url)):
         create_database(db_.engine.url)
     db_.create_all()
@@ -74,3 +76,14 @@ def taxonomy(app, db):
     })
     db.session.commit()
     return taxonomy
+
+
+@pytest.fixture
+def taxonomy_tree(app, db, taxonomy):
+    id1 = TermIdentification(taxonomy=taxonomy, slug="a")
+    term1 = current_flask_taxonomies.create_term(id1, extra_data={"test": "extra_data"})
+    id2 = TermIdentification(parent=term1, slug="b")
+    term2 = current_flask_taxonomies.create_term(id2, extra_data={"test": "extra_data"})
+    id3 = TermIdentification(taxonomy=taxonomy, slug="a/b/c")
+    term3 = current_flask_taxonomies.create_term(id3, extra_data={"test": "extra_data"})
+    db.session.commit()
