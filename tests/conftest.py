@@ -23,13 +23,8 @@ def app():
     app = Flask('testapp', instance_path=instance_path)
 
     app.config.update(
-        JSONSCHEMAS_HOST="nusl.cz",
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
-        # SQLALCHEMY_DATABASE_URI=os.environ.get(
-        #     'SQLALCHEMY_DATABASE_URI',
-        #     'postgresql+psycopg2://{user}:{pw}@{url}/{db}'.format(user="oarepo", pw="oarepo",
-        #                                                           url="127.0.0.1",
-        #                                                           db="oarepo")),
+        SQLALCHEMY_ECHO=True,
         SERVER_NAME='127.0.0.1:5000',
     )
 
