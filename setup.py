@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-"""oarepo OAI-PMH converter."""
+"""Wrapper that connect flask-taxonomies with Invenio"""
 import os
 
 from setuptools import find_packages, setup
@@ -51,17 +51,6 @@ setup(
         'flask.commands': [
             'taxonomies = oarepo_taxonomies.cli:taxonomies',
         ]
-        # TODO: vymyslet napojení na InvenioDB
-        # 'invenio_db.models': [
-        #     'invenio_oarepo_oai_pmh_harvester = invenio_oarepo_oai_pmh_harvester.models',
-        # ],
-        # 'invenio_db.alembic': [
-        #     'invenio_oarepo_oai_pmh_harvester = invenio_oarepo_oai_pmh_harvester:alembic',
-        # ],
-        # 'flask.commands': [
-        #     'nusl = example.cli:nusl',
-        #     'oai = invenio_oarepo_oai_pmh_harvester.cli:oai'
-        # ],
     },
     extras_require=extras_require,
     install_requires=install_requires,
