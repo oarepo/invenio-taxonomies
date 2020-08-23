@@ -27,7 +27,9 @@ def app():
     app.config.update(
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
         SERVER_NAME='127.0.0.1:5000',
-        INVENIO_INSTANCE_PATH=instance_path
+        INVENIO_INSTANCE_PATH=instance_path,
+        DEBUG=True,
+        FLASK_TAXONOMIES_URL_PREFIX='/2.0/taxonomies/'  # in tests, api is not on /api but directly in the root
     )
     print(os.environ.get("INVENIO_INSTANCE_PATH"))
 
@@ -61,6 +63,21 @@ def db(app):
     # Explicitly close DB connection
     db_.session.close()
     db_.drop_all()
+
+
+@pytest.fixture
+def client(app, db):
+    from flask_taxonomies.models import Base
+    Base.metadata.create_all(db.engine)
+    return app.test_client()
+
+
+@pytest.fixture
+def tax_url(app):
+    url = app.config['FLASK_TAXONOMIES_URL_PREFIX']
+    if not url.endswith('/'):
+        url += '/'
+    return url
 
 
 @pytest.fixture

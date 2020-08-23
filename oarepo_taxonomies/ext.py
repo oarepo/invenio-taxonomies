@@ -14,7 +14,10 @@ class OarepoTaxonomies(object):
         """Flask application initialization."""
         self.init_config(app)
         FlaskTaxonomies(app)
-        app.register_blueprint(blueprint, url_prefix=app.config['FLASK_TAXONOMIES_URL_PREFIX'])
+        prefix = app.config['FLASK_TAXONOMIES_URL_PREFIX']
+        if prefix.startswith('/api'):
+            prefix = prefix[4:]
+        app.register_blueprint(blueprint, url_prefix=prefix)
 
     def init_config(self, app):
         from oarepo_taxonomies import config
