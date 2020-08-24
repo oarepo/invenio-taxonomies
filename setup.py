@@ -50,6 +50,12 @@ setup(
     entry_points={
         'flask.commands': [
             'taxonomies = oarepo_taxonomies.cli:taxonomies',
+        ],
+        'invenio_base.api_apps': [
+            'taxonomies = oarepo_taxonomies.ext:OarepoTaxonomies'
+        ],
+        'invenio_base.apps': [
+            'taxonomies = oarepo_taxonomies.ext:OarepoTaxonomies'
         ]
     },
     extras_require=extras_require,
