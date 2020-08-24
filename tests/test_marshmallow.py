@@ -33,7 +33,7 @@ def test_resolve_links_random_link(taxonomy_tree):
         "email": "ken@yahoo.com",
         "name": "Ken",
         "links": {
-            "self": "http://127.0.0.1:5000/api/2.0/taxonomies/test_taxonomy/a/b"
+            "self": "http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b"
         }
     }
     schema = TaxonomyField()
@@ -41,13 +41,13 @@ def test_resolve_links_random_link(taxonomy_tree):
     assert res == {
         'ancestors': [{
             'links': {
-                'self': 'http://127.0.0.1:5000/api/2.0/taxonomies/test_taxonomy/a'
+                'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'
             },
             'test': 'extra_data'
         }],
         'created_at': '2014-08-11T05:26:03.869245',
         'email': 'ken@yahoo.com',
-        'links': {'self': 'http://127.0.0.1:5000/api/2.0/taxonomies/test_taxonomy/a/b'},
+        'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'},
         'name': 'Ken',
         'test': 'extra_data'
     }
@@ -57,17 +57,17 @@ def test_resolve_links_random_string(app, db, taxonomy_tree):
     """
     Test if random user data (string) are passed.
     """
-    random_user_data = "bla bla http://127.0.0.1:5000/api/2.0/taxonomies/test_taxonomy/a/b"
+    random_user_data = "bla bla http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b"
     schema = TaxonomyField()
     result = schema.load(random_user_data)
     assert result == {
         'ancestors': [{
             'links': {
-                'self': 'http://127.0.0.1:5000/api/2.0/taxonomies/test_taxonomy/a'
+                'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'
             },
             'test': 'extra_data'
         }],
-        'links': {'self': 'http://127.0.0.1:5000/api/2.0/taxonomies/test_taxonomy/a/b'},
+        'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'},
         'test': 'extra_data'
     }
 
@@ -123,16 +123,16 @@ def test_extract_link_2():
 
 
 def test_get_term_by_link(taxonomy_tree):
-    term = get_term_by_link("http://127.0.0.1:5000/api/2.0/taxonomies/test_taxonomy/a/b")
+    term = get_term_by_link("http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b")
     assert isinstance(term, TaxonomyTerm)
 
 
 def test_get_term_by_link_2(taxonomy_tree):
-    term = get_term_by_link("http://127.0.0.1:5000/api/2.0/taxonomies/test_taxonomy/a/b/ble")
+    term = get_term_by_link("http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b/ble")
     assert term is None
 
 
 def test_get_slug_from_link():
-    slug, code = get_slug_from_link("http://127.0.0.1:5000/api/2.0/taxonomies/test_taxonomy/a/b")
+    slug, code = get_slug_from_link("http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b")
     assert slug == "a/b"
     assert code == "test_taxonomy"

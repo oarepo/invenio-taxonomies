@@ -135,3 +135,7 @@ requirements_diff/
 *.db
 
 *.xlsx#
+
+.travis-release-requirements.in
+
+.travis-release-requirements.txt
