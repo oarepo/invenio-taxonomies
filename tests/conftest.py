@@ -18,6 +18,7 @@ from invenio_accounts import InvenioAccounts
 from invenio_accounts.models import User, Role
 from invenio_db import InvenioDB
 from invenio_db import db as db_
+from invenio_jsonschemas import InvenioJSONSchemas
 from invenio_records_rest.views import create_blueprint_from_app
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
@@ -46,6 +47,7 @@ def app():
     InvenioAccounts(app)
     InvenioAccess(app)
     Principal(app)
+    InvenioJSONSchemas(app)
 
     login_manager = LoginManager()
     login_manager.init_app(app)

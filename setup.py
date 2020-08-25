@@ -56,6 +56,9 @@ setup(
         ],
         'invenio_base.apps': [
             'taxonomies = oarepo_taxonomies.ext:OarepoTaxonomies'
+        ],
+        'invenio_jsonschemas.schemas': [
+            'oarepo_taxonomies = oarepo_taxonomies.jsonschemas'
         ]
     },
     extras_require=extras_require,
