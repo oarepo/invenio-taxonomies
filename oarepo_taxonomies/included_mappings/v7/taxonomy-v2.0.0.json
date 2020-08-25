@@ -36,9 +36,6 @@
       },
       "status": {
         "type": "string"
-      },
-      "title": {
-        "type": "multilingual-v2.0.0.json#/MultilingualString"
       }
     }
   }
