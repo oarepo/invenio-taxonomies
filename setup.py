@@ -22,7 +22,8 @@ setup_requires = [
 install_requires = [
     'flask-taxonomies>= 7.0.0a13',
     'flatten_json>=0.1.7,<1.0.0',
-    'openpyxl>=3.0.4,<4.0.0'
+    'openpyxl>=3.0.4,<4.0.0',
+    'oarepo-mapping-includes>=1.1.0,<2.0.0'
 ]
 
 packages = find_packages()
@@ -61,7 +62,7 @@ setup(
             'oarepo_taxonomies = oarepo_taxonomies.jsonschemas'
         ],
         "oarepo_mapping_includes": [
-            "oarepo_taxonomies = oarepo_taxonomies.mapping_includes"
+            "oarepo_taxonomies = oarepo_taxonomies.included_mappings"
         ],
     },
     extras_require=extras_require,
