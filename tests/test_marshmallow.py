@@ -1,5 +1,3 @@
-from pprint import pprint
-
 import pytest
 from flask_taxonomies.models import TaxonomyTerm
 from marshmallow import ValidationError
