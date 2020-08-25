@@ -1,1 +1,60 @@
-{}
+{
+  "definitions": {
+    "TaxonomyTerm": {
+      "$id": "#TaxonomyTerm",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "ancestor": {
+          "type": "boolean"
+        },
+        "busy_count": {
+          "type": "integer"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TaxonomyTerm"
+          }
+        },
+        "descendants_busy_count": {
+          "type": "integer"
+        },
+        "descendants_count": {
+          "type": "integer"
+        },
+        "id": {
+          "description": "Internal taxonomy term identifier, do not use.",
+          "type": "integer"
+        },
+        "level": {
+          "type": "integer"
+        },
+        "links": {
+          "type": "object",
+          "properties": {
+            "self": {
+              "type": "string"
+            },
+            "tree": {
+              "type": "string"
+            }
+          }
+        },
+        "slug": {
+          "description": "Taxonomy slug or code.",
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "TaxonomyTermArray": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TaxonomyTerm"
+      }
+    }
+  }
+}
