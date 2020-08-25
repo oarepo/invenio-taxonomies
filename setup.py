@@ -6,6 +6,8 @@ import os
 
 from setuptools import find_packages, setup
 
+readme = open('README.md').read()
+
 tests_require = [
     'pytest',
     'pytest-cov',
@@ -38,7 +40,7 @@ setup(
     name='oarepo_taxonomies',
     version=version,
     description=__doc__,
-    # long_description=,
+    long_description=readme,
     keywords='oarepo taxonomies',
     license='MIT',
     author='Daniel Kopecký',
