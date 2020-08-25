@@ -59,7 +59,10 @@ setup(
         ],
         'invenio_jsonschemas.schemas': [
             'oarepo_taxonomies = oarepo_taxonomies.jsonschemas'
-        ]
+        ],
+        "oarepo_mapping_includes": [
+            "oarepo_taxonomies = oarepo_taxonomies.mapping_includes"
+        ],
     },
     extras_require=extras_require,
     install_requires=install_requires,
