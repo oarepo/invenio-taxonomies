@@ -8,7 +8,7 @@
 notifications:
   email: false
 
-dist: xenial
+dist: focal
 
 sudo: false
 
