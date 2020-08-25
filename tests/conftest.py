@@ -1,6 +1,8 @@
 from __future__ import absolute_import, print_function
 
+import json
 import os
+import pathlib
 import shutil
 import subprocess
 import tempfile
@@ -16,10 +18,13 @@ from flask_taxonomies.term_identification import TermIdentification
 from invenio_access import InvenioAccess
 from invenio_accounts import InvenioAccounts
 from invenio_accounts.models import User, Role
+from invenio_base.signals import app_loaded
 from invenio_db import InvenioDB
 from invenio_db import db as db_
 from invenio_jsonschemas import InvenioJSONSchemas
 from invenio_records_rest.views import create_blueprint_from_app
+from invenio_search import InvenioSearch
+from oarepo_mapping_includes.ext import OARepoMappingIncludesExt
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
 from oarepo_taxonomies.ext import OarepoTaxonomies
@@ -27,7 +32,7 @@ from tests.helpers import set_identity
 
 
 @pytest.yield_fixture()
-def app():
+def app(mapping):
     instance_path = tempfile.mkdtemp()
     app = Flask('testapp', instance_path=instance_path)
 
@@ -48,6 +53,8 @@ def app():
     InvenioAccess(app)
     Principal(app)
     InvenioJSONSchemas(app)
+    InvenioSearch(app)
+    OARepoMappingIncludesExt(app)
 
     login_manager = LoginManager()
     login_manager.init_app(app)
@@ -68,6 +75,10 @@ def app():
         login_user(user)
         set_identity(user)
         return response
+
+    app.extensions['invenio-search'].mappings["test"] = mapping
+
+    app_loaded.send(app, app=app)
 
     with app.app_context():
         # app.register_blueprint(taxonomies_blueprint)
@@ -180,3 +191,9 @@ def test_users(app, db):
     db.session.commit()
 
     return TestUsers(u1, u2, u3, r1, r2)
+
+
+@pytest.fixture()
+def mapping():
+    parent_dir = pathlib.Path(__file__).parent.absolute()
+    return str(parent_dir / "test_v1.0.0.json")

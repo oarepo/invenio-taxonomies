@@ -1,0 +1,16 @@
+{
+  "mappings": {
+    "date_detection": false,
+    "numeric_detection": false,
+    "dynamic": false,
+    "properties": {
+      "$schema": {
+        "type": "keyword",
+        "index": true
+      },
+      "language": {
+        "type": "taxonomy-v2.0.0.json#/TaxonomyTerm"
+      }
+    }
+  }
+}
