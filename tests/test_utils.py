@@ -33,3 +33,12 @@ def test_get_taxonomy_json_3(app, db, taxonomy_tree):
                                                         include=include))
     res = paginator.paginated_data
     pprint(res)
+
+
+def test_get_taxonomy_json_4(app, db, taxonomy_tree):
+    include = [INCLUDE_ANCESTOR_LIST]
+    paginator = get_taxonomy_json(code="test_taxonomy", slug="a/b",
+                                  prefer=Representation("representation",
+                                                        include=include))
+    res = paginator.paginated_data
+    pprint(res)
