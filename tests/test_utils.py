@@ -9,10 +9,11 @@ from oarepo_taxonomies.utils import get_taxonomy_json
 def test_get_taxonomy_json(app, db, taxonomy_tree):
     paginator = get_taxonomy_json(code="test_taxonomy", slug="a/b")
     res = paginator.paginated_data
-    assert isinstance(res, dict)
-    assert "ancestors" in res.keys()
-    assert "children" not in res.keys()
-    assert "links" in res.keys()
+    assert isinstance(res, list)
+    for item in res:
+        assert "ancestors" not in item.keys()
+        assert "children" not in item.keys()
+        assert "links" in item.keys()
 
 
 def test_get_taxonomy_json_2(app, db, taxonomy_tree):
