@@ -1,34 +1,12 @@
 {
   "definitions": {
-    "TaxonomyTerm": {
-      "$id": "#TaxonomyTerm",
+    "TaxonomyBaseTerm": {
+      "$id": "#TaxonomyBaseTerm",
       "type": "object",
-      "additionalProperties": true,
+      "additionalProperties": false,
       "properties": {
         "ancestor": {
           "type": "boolean"
-        },
-        "busy_count": {
-          "type": "integer"
-        },
-        "children": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/TaxonomyTerm"
-          }
-        },
-        "descendants_busy_count": {
-          "type": "integer"
-        },
-        "descendants_count": {
-          "type": "integer"
-        },
-        "id": {
-          "description": "Internal taxonomy term identifier, do not use.",
-          "type": "integer"
-        },
-        "level": {
-          "type": "integer"
         },
         "links": {
           "type": "object",
@@ -36,24 +14,25 @@
             "self": {
               "type": "string"
             },
-            "tree": {
+            "ancestor": {
               "type": "string"
             }
           }
-        },
-        "slug": {
-          "description": "Taxonomy slug or code.",
-          "type": "string"
-        },
-        "status": {
-          "type": "string"
         }
       }
     },
-    "TaxonomyTermArray": {
+    "TaxonomyTerm": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/TaxonomyTerm"
+        "allOf": [
+          {
+            "$ref": "#/definitions/TaxonomyTerm"
+          },
+          {
+            "type": "object",
+            "additionalProperties": true
+          }
+        ]
       }
     }
   }
