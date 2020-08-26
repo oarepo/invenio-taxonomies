@@ -2,7 +2,7 @@
   "mappings": {
     "date_detection": false,
     "numeric_detection": false,
-    "dynamic": false,
+    "dynamic": true,
     "properties": {
       "$schema": {
         "type": "keyword",
