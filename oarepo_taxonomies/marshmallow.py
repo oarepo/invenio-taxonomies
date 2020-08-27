@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 from flask_taxonomies.proxies import current_flask_taxonomies
 from flask_taxonomies.term_identification import TermIdentification
 from invenio_records_rest.schemas.fields import SanitizedUnicode
-from marshmallow import Schema, INCLUDE, pre_load, ValidationError
+from marshmallow import Schema, INCLUDE, pre_load, ValidationError, post_load
 from marshmallow.fields import Nested
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -13,7 +13,7 @@ from oarepo_taxonomies.utils import get_taxonomy_json
 
 class TaxonomyLinksSchemaV1(Schema):
     self = SanitizedUnicode(required=False)
-    tree = SanitizedUnicode(required=False)
+    ancestor = SanitizedUnicode(required=False)
 
 
 class TaxonomyField(Schema):
@@ -22,8 +22,15 @@ class TaxonomyField(Schema):
 
     links = Nested(TaxonomyLinksSchemaV1, required=False)
 
-    @pre_load
+    @pre_load(pass_many=True)
     def resolve_links(self, in_data, **kwargs):
+        """
+        Transform input data to dict, find link and resolve taxonomy. Taxonomy must always be
+        list due to ElasticSearch reason, but transformation to list is processed in post_load
+        function.
+        """
+        if isinstance(in_data, (list, tuple)):
+            in_data = in_data[-1]
         if isinstance(in_data, dict):
             try:
                 link = in_data["links"]["self"]
@@ -42,12 +49,33 @@ class TaxonomyField(Schema):
         if link:
             slug, taxonomy_code = get_slug_from_link(link)
             try:
-                in_data.update(**get_taxonomy_json(code=taxonomy_code, slug=slug).paginated_data)
+                taxonomy_array = get_taxonomy_json(code=taxonomy_code, slug=slug).paginated_data
+                taxonomy_json = taxonomy_array.pop()
+                in_data.update(taxonomy_json)
+                if self.many:
+                    taxonomy_array.append(in_data)
+                    return taxonomy_array
+                return in_data
+
             except NoResultFound:
                 raise NoResultFound(f"Taxonomy '{taxonomy_code}/{slug}' has not been found")
+            except:
+                raise
         else:
             raise ValidationError("Input data does not contain link to taxonomy reference")
-        return in_data
+
+    @post_load(pass_many=True)
+    def get_list(self, in_data, **kwargs):
+        if isinstance(in_data, list):
+            return in_data
+        return self.create_list(in_data)
+
+    def create_list(self, in_data):
+        link = in_data["links"]["self"]
+        slug, taxonomy_code = get_slug_from_link(link)
+        taxonomy_array = get_taxonomy_json(code=taxonomy_code, slug=slug).paginated_data
+        taxonomy_array[-1] = in_data
+        return taxonomy_array
 
 
 def extract_link(text):

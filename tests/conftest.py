@@ -22,6 +22,7 @@ from invenio_base.signals import app_loaded
 from invenio_db import InvenioDB
 from invenio_db import db as db_
 from invenio_jsonschemas import InvenioJSONSchemas
+from invenio_records import InvenioRecords
 from invenio_records_rest.views import create_blueprint_from_app
 from invenio_search import InvenioSearch
 from oarepo_mapping_includes.ext import OARepoMappingIncludesExt
@@ -32,11 +33,12 @@ from tests.helpers import set_identity
 
 
 @pytest.yield_fixture()
-def app(mapping):
+def app(mapping, schema):
     instance_path = tempfile.mkdtemp()
     app = Flask('testapp', instance_path=instance_path)
 
     app.config.update(
+        JSONSCHEMAS_HOST="example.com",
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
         SERVER_NAME='127.0.0.1:5000',
         INVENIO_INSTANCE_PATH=instance_path,
@@ -55,6 +57,7 @@ def app(mapping):
     InvenioJSONSchemas(app)
     InvenioSearch(app)
     OARepoMappingIncludesExt(app)
+    InvenioRecords(app)
 
     login_manager = LoginManager()
     login_manager.init_app(app)
@@ -77,6 +80,7 @@ def app(mapping):
         return response
 
     app.extensions['invenio-search'].mappings["test"] = mapping
+    app.extensions["invenio-jsonschemas"].schemas["test"] = schema
 
     app_loaded.send(app, app=app)
 
@@ -197,3 +201,33 @@ def test_users(app, db):
 def mapping():
     parent_dir = pathlib.Path(__file__).parent.absolute()
     return str(parent_dir / "test_v1.0.0.json")
+
+
+@pytest.fixture()
+def schema():
+    parent_dir = pathlib.Path(__file__).parent.absolute()
+    return str(parent_dir)
+
+
+@pytest.fixture()
+def record():
+    return {
+        "$schema": "https://nusl.cz/schemas/test/test_schema-v1.0.0.json",
+        "taxonomy": [
+            {
+                'links': {
+                    'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
+                },
+                'test': 'extra_data',
+                'ancestor': False
+            },
+            {
+                'links': {
+                    'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b',
+                    'ancestor': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'
+                },
+                'test': 'extra_data',
+                'ancestor': True
+            }
+        ]
+    }

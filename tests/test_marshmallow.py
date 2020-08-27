@@ -1,6 +1,9 @@
+from pprint import pprint
+
 import pytest
 from flask_taxonomies.models import TaxonomyTerm
-from marshmallow import ValidationError
+from marshmallow import ValidationError, Schema
+from marshmallow.fields import Nested, List
 from sqlalchemy.orm.exc import NoResultFound
 
 from oarepo_taxonomies.marshmallow import TaxonomyField, extract_link, get_term_by_link, \
@@ -36,19 +39,17 @@ def test_resolve_links_random_link(taxonomy_tree):
     }
     schema = TaxonomyField()
     res = schema.load(random_user_data)
-    assert res == {
-        'ancestors': [{
-            'links': {
-                'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'
-            },
-            'test': 'extra_data'
-        }],
-        'created_at': '2014-08-11T05:26:03.869245',
-        'email': 'ken@yahoo.com',
-        'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'},
-        'name': 'Ken',
+    assert res == [{
+        'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
         'test': 'extra_data'
-    }
+    },
+        {
+            'created_at': '2014-08-11T05:26:03.869245',
+            'email': 'ken@yahoo.com',
+            'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'},
+            'name': 'Ken',
+            'test': 'extra_data'
+        }]
 
 
 def test_resolve_links_random_string(app, db, taxonomy_tree):
@@ -58,16 +59,16 @@ def test_resolve_links_random_string(app, db, taxonomy_tree):
     random_user_data = "bla bla http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b"
     schema = TaxonomyField()
     result = schema.load(random_user_data)
-    assert result == {
-        'ancestors': [{
+    assert result == [{
+        'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+        'test': 'extra_data'
+    },
+        {
             'links': {
-                'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'
+                'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
             },
             'test': 'extra_data'
-        }],
-        'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'},
-        'test': 'extra_data'
-    }
+        }]
 
 
 def test_resolve_links_random_string_2(app, db, taxonomy_tree):
@@ -100,14 +101,172 @@ def test_resolve_links_random_string_4(app, db, taxonomy_tree):
         schema.load(random_user_data)
 
 
-def test_resolve_links_random_string_5(app, db, taxonomy_tree):
+def test_resolve_links_array(app, db, taxonomy_tree):
     """
     Test if random user data (string) are passed.
     """
-    random_user_data = ["wrong type"]
-    schema = TaxonomyField()
-    with pytest.raises(TypeError):
-        schema.load(random_user_data)
+    random_user_data = [
+        {
+            'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+        },
+        {
+            'links': {
+                'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+            },
+            'test': 'extra_data',
+            'next': 'bla',
+            'another': 'something'
+        }
+    ]
+    schema = TaxonomyField(many=True)
+    result = schema.load(random_user_data)
+    assert result == [{
+        'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+        'test': 'extra_data'
+    },
+        {
+            'another': 'something',
+            'links': {
+                'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+            },
+            'next': 'bla',
+            'test': 'extra_data'
+        }]
+
+
+def test_nested_schema(app, db, taxonomy_tree):
+    class TestSchema(Schema):
+        field = Nested(TaxonomyField())
+
+    random_user_taxonomy = {
+        "created_at": "2014-08-11T05:26:03.869245",
+        "email": "ken@yahoo.com",
+        "name": "Ken",
+        "links": {
+            "self": "http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b"
+        }
+    }
+
+    data = {
+        "field": random_user_taxonomy
+    }
+
+    schema = TestSchema()
+    result = schema.load(data)
+    assert result == {
+        'field': [{
+            'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+            'test': 'extra_data'
+        },
+            {
+                'created_at': '2014-08-11T05:26:03.869245',
+                'email': 'ken@yahoo.com',
+                'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'},
+                'name': 'Ken',
+                'test': 'extra_data'
+            }]
+    }
+
+
+def test_nested_schema_2(app, db, taxonomy_tree):
+    class TestSchema(Schema):
+        field = Nested(TaxonomyField(many=True))
+
+    random_user_taxonomy = [
+        {
+            'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+        },
+        {
+            'links': {
+                'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+            },
+            'test': 'extra_data',
+            'next': 'bla',
+            'another': 'something'
+        }
+    ]
+
+    data = {
+        "field": random_user_taxonomy
+    }
+
+    schema = TestSchema()
+    result = schema.load(data)
+    assert result == {
+        'field': [{
+            'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+            'test': 'extra_data'
+        },
+            {
+                'another': 'something',
+                'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'},
+                'next': 'bla',
+                'test': 'extra_data'
+            }]
+    }
+
+
+@pytest.mark.skip(reason="marshmallow.List isn't working yet")
+def test_nested_schema_3(app, db, taxonomy_tree):
+    class TestSchema(Schema):
+        field = List(Nested(TaxonomyField()))
+
+    random_user_taxonomy = [
+        {
+            'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+        },
+        {
+            'links': {
+                'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+            },
+            'test': 'extra_data',
+            'next': 'bla',
+            'another': 'something'
+        }
+    ]
+
+    data = {
+        "field": random_user_taxonomy
+    }
+
+    schema = TestSchema()
+    result = schema.load(data)
+    assert result == {
+        'field': [{
+            'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+            'test': 'extra_data'
+        },
+            {
+                'another': 'something',
+                'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'},
+                'next': 'bla',
+                'test': 'extra_data'
+            }]
+    }
+
+
+def test_nested_schema_4(app, db, taxonomy_tree):
+    class TestSchema(Schema):
+        field = Nested(TaxonomyField())
+
+    random_user_taxonomy = "bla bla http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b"
+
+    data = {
+        "field": random_user_taxonomy
+    }
+
+    schema = TestSchema()
+    result = schema.load(data)
+    assert result == {
+        'field': [{
+            'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+            'test': 'extra_data'
+        },
+            {
+                'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'},
+                'test': 'extra_data'
+            }]
+    }
 
 
 def test_extract_link_1():

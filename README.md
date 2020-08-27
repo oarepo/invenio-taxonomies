@@ -1,4 +1,4 @@
-# oarepo-taxonomies
+from marshmallow import Schema# oarepo-taxonomies
 Wrapper that connect Flask-Taxonomies with Invenio.
 
 [![image][]][1]
@@ -166,37 +166,199 @@ Excel export is created using a management task `invenio taxonomies export TAXON
 An xlsx and csv file is created in the current folder where the task was run.
 
 ### Marshmallow
+The Marshmallow module serialize Taxonomy and dereference reference from links/self.
+The module provides the Marshmallow subschema `TaxonomyField`, which can be freely used in the user schema.
+TaxonomyField receives any user data and checks if the user data is JSON/dict, string or list.
+
+The output format of serialized taxonomies is the Taxonomic List, which contains ancestors in addition to the taxonomy
+itself. The order of taxonomy is from the parent term to the finite element of the taxonomy.
+
+There are two ways to use TaxonomyField.
+
+1. The input format is a dictionary or text string containing a link to the taxonomy.
+    * dictionary:
+        The dictionary must contain the nested dictionary with name `links`, which contains `self`.
+    * string: Any text that contains a url to the taxonomy.
+2. The input format is list of ancestors, where last is the referenced taxonomy.
+ Creating an `TaxonomyField` instance must contain a named parameter `many = True`.
+  Unfortunately, `marshmallow.List` cannot be used.
+  
+  :warning: Please avoid using `marshmallow.List(marshmallow.Nested (TaxonomyField))`. Use `marshmallow.Nested
+  (TaxonomyField(many=True))` instead.
+ 
+* dictionary       
 ```python
-from marshmallow import Schema
 from marshmallow.fields import Nested
+from marshmallow import Schema
+
 from oarepo_taxonomies.marshmallow import TaxonomyField
 
+class TestSchema(Schema):
+    field = Nested(TaxonomyField())
 
-class UserSchema(Schema):
-    taxonomy = Nested(TaxonomyField)
-    # ... user data
-
-random_user_data = {
-        "created_at": "2014-08-11T05:26:03.869245",
-        "email": "ken@yahoo.com",
-        "name": "Ken",
-        "taxonomy": {
-            "links": {
-                "self": "http://localhost/api/2.0/taxonomies/test_taxonomy/a/b"
-            }
-        }
+random_user_taxonomy = {
+    "created_at": "2014-08-11T05:26:03.869245",
+    "email": "ken@yahoo.com",
+    "name": "Ken",
+    "links": {
+        "self": "http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b"
     }
-schema = TaxonomyField()   
-json = schema.load(random_user_data)
+}
+
+data = {
+    "field": random_user_taxonomy
+}
+
+schema = TestSchema()
+result = schema.load(data)
+assert result == {
+    'field': [{
+        'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+        'test': 'extra_data'
+    },
+        {
+            'created_at': '2014-08-11T05:26:03.869245',
+            'email': 'ken@yahoo.com',
+            'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'},
+            'name': 'Ken',
+            'test': 'extra_data'
+        }]
+}
+```
+    
+* string       
+```python
+from marshmallow.fields import Nested
+from marshmallow import Schema
+
+from oarepo_taxonomies.marshmallow import TaxonomyField
+
+class TestSchema(Schema):
+    field = Nested(TaxonomyField())
+
+random_user_taxonomy = {
+    "created_at": "2014-08-11T05:26:03.869245",
+    "email": "ken@yahoo.com",
+    "name": "Ken",
+    "links": {
+        "self": "http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b"
+    }
+}
+
+data = {
+    "field": random_user_taxonomy
+}
+
+schema = TestSchema()
+result = schema.load(data)
+assert result == {
+    'field': [{
+        'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+        'test': 'extra_data'
+    },
+        {
+            'created_at': '2014-08-11T05:26:03.869245',
+            'email': 'ken@yahoo.com',
+            'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'},
+            'name': 'Ken',
+            'test': 'extra_data'
+        }]
+}
+```
+
+* list
+```python
+from marshmallow.fields import Nested
+from marshmallow import Schema
+
+from oarepo_taxonomies.marshmallow import TaxonomyField
+
+class TestSchema(Schema):
+    field = Nested(TaxonomyField(many=True))
+
+random_user_taxonomy = [
+    {
+        'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+    },
+    {
+        'links': {
+            'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+        },
+        'test': 'extra_data',
+        'next': 'bla',
+        'another': 'something'
+    }
+]
+
+data = {
+    "field": random_user_taxonomy
+}
+
+schema = TestSchema()
+result = schema.load(data)
+assert result == {
+    'field': [{
+        'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+        'test': 'extra_data'
+    },
+        {
+            'another': 'something',
+            'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'},
+            'next': 'bla',
+            'test': 'extra_data'
+        }]
+}
+```
+
+### JSONSchemas
+
+The library offers a predefined JSON schema for taxonomies. The library offers a predefined JSON schema for taxonomies.
+The predefined schema is called with `$ref` and is available in Invenio in `current_jsonschemas.list_schemas()`.
+
+Custom schema example:
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "id": "https://example.com/schemas/example_json-v1.0.0.json",
+  "additionalProperties": false,
+  "title": "My site v1.0.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "custom_taxonomy": {
+      "$ref": "../taxonomy-v1.0.0.json#/definitions/TaxonomyTerm"
+    }
+  }
+}
 
 ```
 
-The Marshmallow module serialize Taxonomy and dereference reference from links/self.
-The module provides the Marshmallo subschema `TaxonomyField`, which can be freely used in the user schema.
-TaxonomyField receives any user data and checks if the user data is JSON/dict or string.
+### Elasticsearch mapping
 
-If the user data is JSON/dict, then it looks for the links/self and fetch data form taxonomy.
-The data provided by the user and are also in the taxonomy are overwritten. Other user data are kept.
+Predefined mappings can be used for indexing into Elasticsearch. If you want to use this mapping you must use the
+library [OAREPO mapping includes](https://github.com/oarepo/oarepo-mapping-includes). A reference to
+taxonomy mapping is then inserted to custom mapping `"type": "taxonomy-v1.0.0.json#/TaxonomyTerm"`.
 
-If the user data is of type string, Marshmallow will try to find a link to the taxonomy and return
-its entire representation.
+Custom mapping example:
+
+```json
+{
+  "mappings": {
+    "date_detection": false,
+    "numeric_detection": false,
+    "dynamic": false,
+    "properties": {
+      "$schema": {
+        "type": "keyword",
+        "index": true
+      },
+      "custom_taxonomy": {
+        "type": "taxonomy-v1.0.0.json#/TaxonomyTerm"
+      }
+    }
+  }
+}
+```
