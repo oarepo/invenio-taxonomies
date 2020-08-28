@@ -1,5 +1,10 @@
 from flask_taxonomies.ext import FlaskTaxonomies
+from flask_taxonomies.signals import before_taxonomy_deleted, after_taxonomy_term_created, \
+    after_taxonomy_term_updated, before_taxonomy_term_deleted, after_taxonomy_term_moved
 from flask_taxonomies.views import blueprint
+
+from oarepo_taxonomies.signals import taxonomy_delete, taxonomy_term_created, taxonomy_term_update, \
+    taxonomy_term_moved, taxonomy_term_delete
 
 
 class OarepoTaxonomies(object):
@@ -14,10 +19,18 @@ class OarepoTaxonomies(object):
         """Flask application initialization."""
         FlaskTaxonomies(app)
         self.init_config(app)
+
         prefix = app.config['FLASK_TAXONOMIES_URL_PREFIX']
         if prefix.startswith('/api'):
             prefix = prefix[4:]
         app.register_blueprint(blueprint, url_prefix=prefix)
+
+        # connect signals
+        before_taxonomy_deleted.connect(taxonomy_delete)
+        after_taxonomy_term_created.connect(taxonomy_term_created)
+        after_taxonomy_term_updated.connect(taxonomy_term_update)
+        after_taxonomy_term_moved.connect(taxonomy_term_moved)
+        before_taxonomy_term_deleted.connect(taxonomy_term_delete)
 
     def init_config(self, app):
         from oarepo_taxonomies import config

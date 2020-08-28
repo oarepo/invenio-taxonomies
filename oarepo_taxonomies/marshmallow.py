@@ -1,27 +1,24 @@
 import re
 from urllib.parse import urlparse
 
-from flask_taxonomies.proxies import current_flask_taxonomies
-from flask_taxonomies.term_identification import TermIdentification
-from invenio_records_rest.schemas.fields import SanitizedUnicode
 from marshmallow import Schema, INCLUDE, pre_load, ValidationError, post_load
-from marshmallow.fields import Nested, Boolean
+from marshmallow.fields import Boolean
+from oarepo_references.mixins import InlineReferenceMixin
 from sqlalchemy.orm.exc import NoResultFound
 
 from oarepo_taxonomies.utils import get_taxonomy_json
 
 
-class TaxonomyLinksSchemaV1(Schema):
-    self = SanitizedUnicode(required=False)
-    parent = SanitizedUnicode(required=False)
-
-
-class TaxonomyField(Schema):
+class TaxonomyField(Schema, InlineReferenceMixin):
     class Meta:
         unknown = INCLUDE
 
     is_ancestor = Boolean(required=False)
-    links = Nested(TaxonomyLinksSchemaV1, required=False)
+
+    def ref_url(self, data):
+        if isinstance(data, (list, tuple)):
+            data = data[-1]
+        return data.get('links', {}).get('self', None)
 
     @pre_load(pass_many=True)
     def resolve_links(self, in_data, **kwargs):
@@ -87,15 +84,6 @@ def extract_link(text):
         return
     url = regex.group("url")
     return url
-
-
-def get_term_by_link(link):
-    slug, taxonomy_code = get_slug_from_link(link)
-    term = current_flask_taxonomies.filter_term(
-        TermIdentification(taxonomy=taxonomy_code, slug=slug)).one_or_none()
-    if not term:
-        return None
-    return term
 
 
 def get_slug_from_link(link):
