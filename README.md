@@ -193,9 +193,11 @@ from marshmallow import Schema
 
 from oarepo_taxonomies.marshmallow import TaxonomyField
 
+# custom schema
 class TestSchema(Schema):
     field = Nested(TaxonomyField())
 
+# taxonomy dict
 random_user_taxonomy = {
     "created_at": "2014-08-11T05:26:03.869245",
     "email": "ken@yahoo.com",
@@ -205,6 +207,7 @@ random_user_taxonomy = {
     }
 }
 
+# record dict
 data = {
     "field": random_user_taxonomy
 }
@@ -213,13 +216,18 @@ schema = TestSchema()
 result = schema.load(data)
 assert result == {
     'field': [{
+        'is_ancestor': True,
         'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
         'test': 'extra_data'
     },
         {
             'created_at': '2014-08-11T05:26:03.869245',
             'email': 'ken@yahoo.com',
-            'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'},
+            'is_ancestor': False,
+            'links': {
+                'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
+                'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+            },
             'name': 'Ken',
             'test': 'extra_data'
         }]
@@ -233,18 +241,14 @@ from marshmallow import Schema
 
 from oarepo_taxonomies.marshmallow import TaxonomyField
 
+# custom schema
 class TestSchema(Schema):
     field = Nested(TaxonomyField())
 
-random_user_taxonomy = {
-    "created_at": "2014-08-11T05:26:03.869245",
-    "email": "ken@yahoo.com",
-    "name": "Ken",
-    "links": {
-        "self": "http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b"
-    }
-}
+# taxonomy reference as any string with url
+random_user_taxonomy = "bla bla http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b"
 
+# record dict
 data = {
     "field": random_user_taxonomy
 }
@@ -253,16 +257,18 @@ schema = TestSchema()
 result = schema.load(data)
 assert result == {
     'field': [{
-        'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
-        'test': 'extra_data'
-    },
-        {
-            'created_at': '2014-08-11T05:26:03.869245',
-            'email': 'ken@yahoo.com',
-            'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'},
-            'name': 'Ken',
-            'test': 'extra_data'
-        }]
+                  'is_ancestor': True,
+                  'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+                  'test': 'extra_data'
+              },
+              {
+                  'is_ancestor': False,
+                  'links': {
+                      'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
+                      'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+                  },
+                  'test': 'extra_data'
+              }]
 }
 ```
 
@@ -273,9 +279,11 @@ from marshmallow import Schema
 
 from oarepo_taxonomies.marshmallow import TaxonomyField
 
+# custom schema
 class TestSchema(Schema):
     field = Nested(TaxonomyField(many=True))
 
+# taxonomy list with ancestor (root ancestor at the first place)
 random_user_taxonomy = [
     {
         'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
@@ -290,6 +298,7 @@ random_user_taxonomy = [
     }
 ]
 
+# record dict
 data = {
     "field": random_user_taxonomy
 }
@@ -298,12 +307,17 @@ schema = TestSchema()
 result = schema.load(data)
 assert result == {
     'field': [{
+        'is_ancestor': True,
         'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
         'test': 'extra_data'
     },
         {
             'another': 'something',
-            'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'},
+            'is_ancestor': False,
+            'links': {
+                'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
+                'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+            },
             'next': 'bla',
             'test': 'extra_data'
         }]
