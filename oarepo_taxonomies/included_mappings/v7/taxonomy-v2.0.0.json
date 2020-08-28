@@ -2,7 +2,7 @@
   "TaxonomyTerm": {
     "type": "object",
     "properties": {
-      "ancestor": {
+      "is_ancestor": {
         "type": "boolean"
       },
       "links": {
@@ -11,7 +11,7 @@
           "self": {
             "type": "keyword"
           },
-          "ancestor": {
+          "parent": {
             "type": "keyword"
           }
         }

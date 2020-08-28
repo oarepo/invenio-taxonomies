@@ -1,6 +1,6 @@
 import sqlalchemy
 from flask_taxonomies.constants import INCLUDE_DELETED, INCLUDE_DESCENDANTS, \
-    INCLUDE_DESCENDANTS_COUNT, INCLUDE_STATUS, INCLUDE_SELF, INCLUDE_ANCESTOR_LIST
+    INCLUDE_DESCENDANTS_COUNT, INCLUDE_STATUS, INCLUDE_SELF
 from flask_taxonomies.models import TaxonomyTerm, TermStatusEnum, Representation
 from flask_taxonomies.proxies import current_flask_taxonomies
 from flask_taxonomies.term_identification import TermIdentification
@@ -8,11 +8,14 @@ from flask_taxonomies.views.common import build_descendants
 from flask_taxonomies.views.paginator import Paginator
 
 
-def get_taxonomy_json(code=None, slug=None,
-                      prefer: Representation = Representation("representation",
-                                                              include=[INCLUDE_ANCESTOR_LIST]),
+def get_taxonomy_json(code=None,
+                      slug=None,
+                      prefer: Representation = Representation("taxonomy"),
                       page=None,
-                      size=None, status_code=200, q=None, request=None):
+                      size=None,
+                      status_code=200,
+                      q=None,
+                      request=None):
     taxonomy = current_flask_taxonomies.get_taxonomy(code)
     prefer = taxonomy.merge_select(prefer)
 
