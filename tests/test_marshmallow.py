@@ -39,14 +39,20 @@ def test_resolve_links_random_link(taxonomy_tree):
     }
     schema = TaxonomyField()
     res = schema.load(random_user_data)
+    # pprint(res)
     assert res == [{
+        'is_ancestor': True,
         'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
         'test': 'extra_data'
     },
         {
             'created_at': '2014-08-11T05:26:03.869245',
             'email': 'ken@yahoo.com',
-            'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'},
+            'is_ancestor': False,
+            'links': {
+                'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
+                'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+            },
             'name': 'Ken',
             'test': 'extra_data'
         }]
@@ -59,12 +65,16 @@ def test_resolve_links_random_string(app, db, taxonomy_tree):
     random_user_data = "bla bla http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b"
     schema = TaxonomyField()
     result = schema.load(random_user_data)
+    # pprint(result)
     assert result == [{
+        'is_ancestor': True,
         'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
         'test': 'extra_data'
     },
         {
+            'is_ancestor': False,
             'links': {
+                'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
                 'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
             },
             'test': 'extra_data'
@@ -73,7 +83,7 @@ def test_resolve_links_random_string(app, db, taxonomy_tree):
 
 def test_resolve_links_random_string_2(app, db, taxonomy_tree):
     """
-    Test if random user data (string) are passed.
+    Test if wrong url (string) does not pass.
     """
     random_user_data = "bla bla http://example.com/"
     schema = TaxonomyField()
@@ -83,7 +93,7 @@ def test_resolve_links_random_string_2(app, db, taxonomy_tree):
 
 def test_resolve_links_random_string_3(app, db, taxonomy_tree):
     """
-    Test if random user data (string) are passed.
+    Test if wrong url (string) does not pass.
     """
     random_user_data = "bla bla http://example.com/taxonomies/a/b/z"
     schema = TaxonomyField()
@@ -120,13 +130,17 @@ def test_resolve_links_array(app, db, taxonomy_tree):
     ]
     schema = TaxonomyField(many=True)
     result = schema.load(random_user_data)
+    # pprint(result)
     assert result == [{
+        'is_ancestor': True,
         'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
         'test': 'extra_data'
     },
         {
             'another': 'something',
+            'is_ancestor': False,
             'links': {
+                'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
                 'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
             },
             'next': 'bla',
@@ -153,15 +167,21 @@ def test_nested_schema(app, db, taxonomy_tree):
 
     schema = TestSchema()
     result = schema.load(data)
+    # pprint(result)
     assert result == {
         'field': [{
+            'is_ancestor': True,
             'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
             'test': 'extra_data'
         },
             {
                 'created_at': '2014-08-11T05:26:03.869245',
                 'email': 'ken@yahoo.com',
-                'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'},
+                'is_ancestor': False,
+                'links': {
+                    'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
+                    'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+                },
                 'name': 'Ken',
                 'test': 'extra_data'
             }]
@@ -192,14 +212,20 @@ def test_nested_schema_2(app, db, taxonomy_tree):
 
     schema = TestSchema()
     result = schema.load(data)
+    # pprint(result)
     assert result == {
         'field': [{
+            'is_ancestor': True,
             'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
             'test': 'extra_data'
         },
             {
                 'another': 'something',
-                'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'},
+                'is_ancestor': False,
+                'links': {
+                    'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
+                    'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+                },
                 'next': 'bla',
                 'test': 'extra_data'
             }]
@@ -257,15 +283,21 @@ def test_nested_schema_4(app, db, taxonomy_tree):
 
     schema = TestSchema()
     result = schema.load(data)
+    # pprint(result)
     assert result == {
         'field': [{
-            'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
-            'test': 'extra_data'
-        },
-            {
-                'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'},
-                'test': 'extra_data'
-            }]
+                      'is_ancestor': True,
+                      'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+                      'test': 'extra_data'
+                  },
+                  {
+                      'is_ancestor': False,
+                      'links': {
+                          'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
+                          'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+                      },
+                      'test': 'extra_data'
+                  }]
     }
 
 

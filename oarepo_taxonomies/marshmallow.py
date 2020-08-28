@@ -5,7 +5,7 @@ from flask_taxonomies.proxies import current_flask_taxonomies
 from flask_taxonomies.term_identification import TermIdentification
 from invenio_records_rest.schemas.fields import SanitizedUnicode
 from marshmallow import Schema, INCLUDE, pre_load, ValidationError, post_load
-from marshmallow.fields import Nested
+from marshmallow.fields import Nested, Boolean
 from sqlalchemy.orm.exc import NoResultFound
 
 from oarepo_taxonomies.utils import get_taxonomy_json
@@ -13,13 +13,14 @@ from oarepo_taxonomies.utils import get_taxonomy_json
 
 class TaxonomyLinksSchemaV1(Schema):
     self = SanitizedUnicode(required=False)
-    ancestor = SanitizedUnicode(required=False)
+    parent = SanitizedUnicode(required=False)
 
 
 class TaxonomyField(Schema):
     class Meta:
         unknown = INCLUDE
 
+    is_ancestor = Boolean(required=False)
     links = Nested(TaxonomyLinksSchemaV1, required=False)
 
     @pre_load(pass_many=True)
@@ -68,14 +69,15 @@ class TaxonomyField(Schema):
     def get_list(self, in_data, **kwargs):
         if isinstance(in_data, list):
             return in_data
-        return self.create_list(in_data)
+        return create_list(in_data)
 
-    def create_list(self, in_data):
-        link = in_data["links"]["self"]
-        slug, taxonomy_code = get_slug_from_link(link)
-        taxonomy_array = get_taxonomy_json(code=taxonomy_code, slug=slug).paginated_data
-        taxonomy_array[-1] = in_data
-        return taxonomy_array
+
+def create_list(in_data):
+    link = in_data["links"]["self"]
+    slug, taxonomy_code = get_slug_from_link(link)
+    taxonomy_array = get_taxonomy_json(code=taxonomy_code, slug=slug).paginated_data
+    taxonomy_array[-1] = in_data
+    return taxonomy_array
 
 
 def extract_link(text):

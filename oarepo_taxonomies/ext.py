@@ -12,8 +12,8 @@ class OarepoTaxonomies(object):
 
     def init_app(self, app, db=None):
         """Flask application initialization."""
-        self.init_config(app)
         FlaskTaxonomies(app)
+        self.init_config(app)
         prefix = app.config['FLASK_TAXONOMIES_URL_PREFIX']
         if prefix.startswith('/api'):
             prefix = prefix[4:]
@@ -21,6 +21,8 @@ class OarepoTaxonomies(object):
 
     def init_config(self, app):
         from oarepo_taxonomies import config
-        for k in dir(config):
-            if k.startswith('FLASK_TAXONOMIES_'):  # pragma: no cover
-                app.config.setdefault(k, getattr(config, k))
+        app.config["FLASK_TAXONOMIES_REPRESENTATION"] = {
+            **config.FLASK_TAXONOMIES_REPRESENTATION,
+            **app.config[
+                "FLASK_TAXONOMIES_REPRESENTATION"]
+        }

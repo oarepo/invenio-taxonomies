@@ -5,7 +5,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "ancestor": {
+        "is_ancestor": {
           "type": "boolean"
         },
         "links": {
@@ -14,7 +14,7 @@
             "self": {
               "type": "string"
             },
-            "ancestor": {
+            "parent": {
               "type": "string"
             }
           }
