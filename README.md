@@ -326,8 +326,9 @@ assert result == {
 
 ### JSONSchemas
 
-The library offers a predefined JSON schema for taxonomies. The library offers a predefined JSON schema for taxonomies.
-The predefined schema is called with `$ref` and is available in Invenio in `current_jsonschemas.list_schemas()`.
+The library offers a predefined JSON schema for taxonomies.
+The predefined schema is called with `"$ref": "../taxonomy-v2.0.0.json#/definitions/TaxonomyTerm"`
+and is available in Invenio in `current_jsonschemas.list_schemas()`. 
 
 Custom schema example:
 
@@ -343,7 +344,7 @@ Custom schema example:
       "type": "string"
     },
     "custom_taxonomy": {
-      "$ref": "../taxonomy-v1.0.0.json#/definitions/TaxonomyTerm"
+      "$ref": "../taxonomy-v2.0.0.json#/definitions/TaxonomyTerm"
     }
   }
 }
@@ -354,7 +355,7 @@ Custom schema example:
 
 Predefined mappings can be used for indexing into Elasticsearch. If you want to use this mapping you must use the
 library [OAREPO mapping includes](https://github.com/oarepo/oarepo-mapping-includes). A reference to
-taxonomy mapping is then inserted to custom mapping `"type": "taxonomy-v1.0.0.json#/TaxonomyTerm"`.
+taxonomy mapping is then inserted to custom mapping `"type": "taxonomy-v2.0.0.json#/TaxonomyTerm"`.
 
 Custom mapping example:
 
@@ -370,7 +371,7 @@ Custom mapping example:
         "index": true
       },
       "custom_taxonomy": {
-        "type": "taxonomy-v1.0.0.json#/TaxonomyTerm"
+        "type": "taxonomy-v2.0.0.json#/TaxonomyTerm"
       }
     }
   }
