@@ -11,7 +11,7 @@ readme = open('README.md').read()
 tests_require = [
     'pytest',
     'pytest-cov',
-    'oarepo[deploy-es7]>=3.2.1.2'
+    'oarepo[deploy-es7]>=3.2.1.2,<3.3.0.0'
 ]
 extras_require = {
     "tests": tests_require
@@ -25,7 +25,8 @@ install_requires = [
     'flask-taxonomies>=7.0.0a16',
     'flatten_json>=0.1.7,<1.0.0',
     'openpyxl>=3.0.4,<4.0.0',
-    'oarepo-mapping-includes>=1.1.0,<2.0.0'
+    'oarepo-mapping-includes>=1.1.0,<2.0.0',
+    'oarepo-references[validate]>=1.8.3,<2.0.0'
 ]
 
 packages = find_packages()

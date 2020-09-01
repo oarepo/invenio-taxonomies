@@ -1,0 +1,2 @@
+class DeleteAbortedError(Exception):
+    pass

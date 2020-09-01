@@ -45,3 +45,14 @@ def test_api(app, db):
 
     res_term = current_flask_taxonomies.filter_term(term_identification).one_or_none()
     assert isinstance(res_term, TaxonomyTerm)
+
+
+def test_move_term(app, db, taxonomy_tree):
+    taxonomy = current_flask_taxonomies.get_taxonomy("test_taxonomy")
+    terms = current_flask_taxonomies.list_taxonomy(taxonomy).all()
+    print(terms)
+    ti = TermIdentification(term=terms[2])
+    current_flask_taxonomies.move_term(ti, new_parent=terms[0], remove_after_delete=False)
+    db.session.commit()
+    terms = current_flask_taxonomies.list_taxonomy(taxonomy).all()
+    print(terms)

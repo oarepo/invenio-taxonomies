@@ -326,8 +326,9 @@ assert result == {
 
 ### JSONSchemas
 
-The library offers a predefined JSON schema for taxonomies. The library offers a predefined JSON schema for taxonomies.
-The predefined schema is called with `$ref` and is available in Invenio in `current_jsonschemas.list_schemas()`.
+The library offers a predefined JSON schema for taxonomies.
+The predefined schema is called with `"$ref": "../taxonomy-v2.0.0.json#/definitions/TaxonomyTerm"`
+and is available in Invenio in `current_jsonschemas.list_schemas()`. 
 
 Custom schema example:
 
@@ -343,7 +344,7 @@ Custom schema example:
       "type": "string"
     },
     "custom_taxonomy": {
-      "$ref": "../taxonomy-v1.0.0.json#/definitions/TaxonomyTerm"
+      "$ref": "../taxonomy-v2.0.0.json#/definitions/TaxonomyTerm"
     }
   }
 }
@@ -354,7 +355,7 @@ Custom schema example:
 
 Predefined mappings can be used for indexing into Elasticsearch. If you want to use this mapping you must use the
 library [OAREPO mapping includes](https://github.com/oarepo/oarepo-mapping-includes). A reference to
-taxonomy mapping is then inserted to custom mapping `"type": "taxonomy-v1.0.0.json#/TaxonomyTerm"`.
+taxonomy mapping is then inserted to custom mapping `"type": "taxonomy-v2.0.0.json#/TaxonomyTerm"`.
 
 Custom mapping example:
 
@@ -370,9 +371,20 @@ Custom mapping example:
         "index": true
       },
       "custom_taxonomy": {
-        "type": "taxonomy-v1.0.0.json#/TaxonomyTerm"
+        "type": "taxonomy-v2.0.0.json#/TaxonomyTerm"
       }
     }
   }
 }
 ```
+
+### Signals
+This module will register the following signal handlers on the Flask Taxonomies signals that handle managing of
+ reference Taxonomies whenever a Taxonomy or TaxonomyTerm changes:
+ 
+ | Flask-Taxonomies signals     | Registred signal [handler](https://github.com/oarepo/oarepo-taxonomies/blob/master/oarepo_taxonomies/signals.py) | Description                                                                                      |
+|------------------------------|--------------------------|--------------------------------------------------------------------------------------------------|
+| before_taxonomy_deleted      | taxonomy_delete          | Checks if the changed taxonomy is a reference to any record. If so, they throw an exception.     |
+| before_taxonomy_term_deleted | taxonomy_term_delete     | Checks if the changed TaxonomyTerm is a reference to any record. If so, they throw an exception. |
+| after_taxonomy_term_updated  | taxonomy_term_update     | Replaces the link in the records to the moved TaxonomyTerm.                                      |
+| after_taxonomy_term_moved    | taxonomy_term_moved      | Replaces the contents of the changed taxonomy in the referenced records.                         |
