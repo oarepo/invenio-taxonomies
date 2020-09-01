@@ -1,16 +1,16 @@
 from __future__ import absolute_import, print_function
 
-import json
 import os
 import pathlib
 import shutil
 import subprocess
 import tempfile
+import uuid
 from collections import namedtuple
 from pathlib import Path
 
 import pytest
-from flask import Flask, make_response
+from flask import Flask, make_response, url_for, current_app
 from flask_login import LoginManager, login_user
 from flask_principal import RoleNeed, Principal, Permission
 from flask_taxonomies.proxies import current_flask_taxonomies
@@ -23,16 +23,88 @@ from invenio_db import InvenioDB
 from invenio_db import db as db_
 from invenio_indexer.api import RecordIndexer
 from invenio_jsonschemas import InvenioJSONSchemas
-from invenio_records import InvenioRecords
-from invenio_records_rest.utils import allow_all
-from invenio_records_rest.views import create_blueprint_from_app
+from invenio_pidstore.providers.recordid import RecordIdProvider
+from invenio_records import InvenioRecords, Record
+from invenio_records_rest import InvenioRecordsREST
+from invenio_records_rest.schemas.fields import SanitizedUnicode
 from invenio_search import InvenioSearch, RecordsSearch
+from marshmallow import Schema
+from marshmallow.fields import Integer, Nested
 from oarepo_mapping_includes.ext import OARepoMappingIncludesExt
 from oarepo_references import OARepoReferences
+from oarepo_references.mixins import ReferenceEnabledRecordMixin
+from oarepo_validate import MarshmallowValidatedRecordMixin
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
 from oarepo_taxonomies.ext import OarepoTaxonomies
+from oarepo_taxonomies.marshmallow import TaxonomyField
 from tests.helpers import set_identity
+
+
+class TestSchema(Schema):
+    """Test record schema."""
+    title = SanitizedUnicode()
+    pid = Integer()
+    taxonomy = Nested(TaxonomyField, required=False)
+
+
+class TestRecord(MarshmallowValidatedRecordMixin,
+                 ReferenceEnabledRecordMixin,
+                 Record):
+    """Reference enabled test record class."""
+    MARSHMALLOW_SCHEMA = TestSchema
+    VALIDATE_MARSHMALLOW = True
+    VALIDATE_PATCH = True
+
+    @property
+    def canonical_url(self):
+        SERVER_NAME = current_app.config["SERVER_NAME"]
+        return f"http://{SERVER_NAME}/api/records/{self['pid']}"
+        # return url_for('invenio_records_rest.recid_item',
+        #                pid_value=self['pid'], _external=True)
+
+
+class TaxonomyRecord(MarshmallowValidatedRecordMixin,
+                     ReferenceEnabledRecordMixin,
+                     Record):
+    """Record for testing inlined taxonomies."""
+    MARSHMALLOW_SCHEMA = TaxonomyField
+    VALIDATE_MARSHMALLOW = True
+    VALIDATE_PATCH = True
+
+    @property
+    def canonical_url(self):
+        return url_for('invenio_records_rest.recid_item',
+                       pid_value=self['pid'], _external=True)
+
+
+RECORDS_REST_ENDPOINTS = {
+    'recid': dict(
+        pid_type='recid',
+        pid_minter='recid',
+        pid_fetcher='recid',
+        default_endpoint_prefix=True,
+        search_class=RecordsSearch,
+        indexer_class=RecordIndexer,
+        search_index='records',
+        search_type=None,
+        record_serializers={
+            'application/json': 'oarepo_validate:json_response',
+        },
+        search_serializers={
+            'application/json': 'oarepo_validate:json_search',
+        },
+        record_loaders={
+            'application/json': 'oarepo_validate:json_loader',
+        },
+        record_class=TestRecord,
+        list_route='/records/',
+        item_route='/records/<pid(recid):pid_value>',
+        default_media_type='application/json',
+        max_result_window=10000,
+        error_handlers=dict()
+    )
+}
 
 
 @pytest.yield_fixture()
@@ -46,8 +118,10 @@ def app(mapping, schema):
         SERVER_NAME='127.0.0.1:5000',
         INVENIO_INSTANCE_PATH=instance_path,
         DEBUG=True,
-        FLASK_TAXONOMIES_URL_PREFIX='/2.0/taxonomies/'
         # in tests, api is not on /api but directly in the root
+        PIDSTORE_RECID_FIELD='pid',
+        FLASK_TAXONOMIES_URL_PREFIX='/2.0/taxonomies/',
+        RECORDS_REST_ENDPOINTS=RECORDS_REST_ENDPOINTS,
     )
     app.secret_key = 'changeme'
     print(os.environ.get("INVENIO_INSTANCE_PATH"))
@@ -62,6 +136,7 @@ def app(mapping, schema):
     InvenioSearch(app)
     OARepoMappingIncludesExt(app)
     InvenioRecords(app)
+    InvenioRecordsREST(app)
 
     login_manager = LoginManager()
     login_manager.init_app(app)
@@ -72,7 +147,7 @@ def app(mapping, schema):
         user_obj = User.query.get(int(user_id))
         return user_obj
 
-    app.register_blueprint(create_blueprint_from_app(app))
+    # app.register_blueprint(create_blueprint_from_app(app))
 
     @app.route('/test/login/<int:id>', methods=['GET', 'POST'])
     def test_login(id):
@@ -214,62 +289,52 @@ def schema():
 
 
 @pytest.fixture()
-def record():
+def record_json():
     return {
-        "$schema": "https://nusl.cz/schemas/test/test_schema-v1.0.0.json",
         "taxonomy": [
             {
                 'links': {
                     'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
                 },
-                'test': 'extra_data',
-                'ancestor': False
+                'test': 'extra_data_a',
+                'is_ancestor': True
             },
             {
                 'links': {
                     'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b',
-                    'ancestor': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'
+                    'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'
                 },
-                'test': 'extra_data',
-                'ancestor': True
+                'test': 'extra_data_a_b',
+                'is_ancestor': True
+            },
+            {
+                'links': {
+                    'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b/c',
+                    'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+                },
+                'test': 'extra_data_a_b_c',
+                'is_ancestor': False
             }
-        ]
+        ],
+        "pid": 999,
+        "title": "record 1"
     }
 
 
 @pytest.fixture
-def record_endpoints(app):
-    RECORD_PID = 'pid(recid,record_class="sample.record:SampleRecord")'
-    app.config["RECORDS_DRAFT_ENDPOINTS"] = {
-        'recid': dict(
-            draft='drecid',
-            pid_type='recid',
-            pid_minter='recid',
-            pid_fetcher='recid',
-            default_endpoint_prefix=True,
-            search_class=RecordsSearch,
-            indexer_class=RecordIndexer,
-            search_index='records',
-            search_type=None,
-            record_serializers={
-                'application/json': 'oarepo_validate:json_response',
-            },
-            search_serializers={
-                'application/json': 'oarepo_validate:json_search',
-            },
-            record_loaders={
-                'application/json': 'oarepo_validate:json_loader',
-            },
-            record_class='sample.record:SampleRecord',
-            list_route='/records/',
-            item_route='/records/<{0}:pid_value>'.format(RECORD_PID),
-            default_media_type='application/json',
-            max_result_window=10000,
-            error_handlers=dict()
-        ),
-        'drecid': dict(
-            create_permission_factory_imp=allow_all,
-            delete_permission_factory_imp=allow_all,
-            update_permission_factory_imp=allow_all,
-        )
-    }
+def test_record(db, record_json, taxonomy_tree):
+    ruuid, pid = get_pid()
+    record_json['pid'] = pid
+    record = TestRecord.create(record_json, id_=str(ruuid))
+    db.session.commit()
+    return record
+
+
+def get_pid():
+    """Generates a new PID for a record."""
+    record_uuid = uuid.uuid4()
+    provider = RecordIdProvider.create(
+        object_type='rec',
+        object_uuid=record_uuid,
+    )
+    return record_uuid, provider.pid.pid_value
