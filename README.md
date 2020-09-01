@@ -377,3 +377,14 @@ Custom mapping example:
   }
 }
 ```
+
+### Signals
+This module will register the following signal handlers on the Flask Taxonomies signals that handle managing of
+ reference Taxonomies whenever a Taxonomy or TaxonomyTerm changes:
+ 
+ | Flask-Taxonomies signals     | Registred signal [handler](https://github.com/oarepo/oarepo-taxonomies/blob/master/oarepo_taxonomies/signals.py) | Description                                                                                      |
+|------------------------------|--------------------------|--------------------------------------------------------------------------------------------------|
+| before_taxonomy_deleted      | taxonomy_delete          | Checks if the changed taxonomy is a reference to any record. If so, they throw an exception.     |
+| before_taxonomy_term_deleted | taxonomy_term_delete     | Checks if the changed TaxonomyTerm is a reference to any record. If so, they throw an exception. |
+| after_taxonomy_term_updated  | taxonomy_term_update     | Replaces the link in the records to the moved TaxonomyTerm.                                      |
+| after_taxonomy_term_moved    | taxonomy_term_moved      | Replaces the contents of the changed taxonomy in the referenced records.                         |
