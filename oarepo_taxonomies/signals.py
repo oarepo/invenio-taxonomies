@@ -3,6 +3,7 @@ import logging
 from oarepo_references.proxies import current_references
 
 from oarepo_taxonomies.exceptions import DeleteAbortedError
+from oarepo_taxonomies.utils import get_taxonomy_json
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,12 @@ def taxonomy_term_delete(*args, **kwargs):
 
 
 def taxonomy_term_update(*args, **kwargs):
-    print("taxonomy_term_update", args, kwargs)
+    term = kwargs["term"]
+    taxonomy = kwargs["taxonomy"]
+    url = term.links().envelope["self"]
+    content = get_taxonomy_json(code=taxonomy.code, slug=term.slug).paginated_data
+    changed_records = current_references.reference_content_changed(content, ref_url=url)
+    logger.debug(f"Changed records: {changed_records}")
 
 
 def taxonomy_term_moved(*args, **kwargs):
