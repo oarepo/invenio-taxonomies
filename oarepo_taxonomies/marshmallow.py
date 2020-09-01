@@ -45,6 +45,10 @@ class TaxonomyField(Schema, InlineReferenceMixin):
         else:
             raise TypeError("Input data have to be json or string")
         if link:
+            if self.context:
+                renamed_reference = self.context.get("renamed_reference")
+                if renamed_reference:
+                    link = renamed_reference["new_url"]
             slug, taxonomy_code = get_slug_from_link(link)
             try:
                 taxonomy_array = get_taxonomy_json(code=taxonomy_code, slug=slug).paginated_data
