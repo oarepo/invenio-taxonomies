@@ -171,7 +171,44 @@ The module provides the Marshmallow subschema `TaxonomyField`, which can be free
 TaxonomyField receives any user data and checks if the user data is JSON/dict, string or list.
 
 The output format of serialized taxonomies is the Taxonomic List, which contains ancestors in addition to the taxonomy
-itself. The order of taxonomy is from the parent term to the finite element of the taxonomy.
+itself. The order of taxonomy is from the parent term to the finite element of the taxonomy. For taxonomy reason, the
+serialization is opinionated. Example of taxonomy serialization is following:
+
+```json5
+[{
+        'is_ancestor': True,
+        'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+        'test': 'extra_data'
+    },
+        {
+            'created_at': '2014-08-11T05:26:03.869245',
+            'email': 'ken@yahoo.com',
+            'is_ancestor': False,
+            'links': {
+                'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
+                'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+            },
+            'name': 'Ken',
+            'test': 'extra_data'
+        }]
+```
+
+Taxonomy representation can be changed in config file (e.g.: invenio.cfg). For more details please see [Flask
+-Taxonomies](https://github.com/oarepo/flask-taxonomies#includes-and-excludes).
+
+This library use predefinded config that is located in `config.py`:
+
+```python
+FLASK_TAXONOMIES_REPRESENTATION = {
+    "taxonomy": {
+        'include': [INCLUDE_DATA, INCLUDE_ANCESTORS, INCLUDE_URL, INCLUDE_SELF,
+                    INCLUDE_ANCESTOR_LIST, INCLUDE_ANCESTOR_TAG, INCLUDE_PARENT],
+        'exclude': [],
+        'select': None,
+        'options': {}
+    }
+}
+```
 
 There are two ways to use TaxonomyField.
 

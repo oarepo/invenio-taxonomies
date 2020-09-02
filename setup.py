@@ -41,7 +41,7 @@ setup(
     name='oarepo_taxonomies',
     version=version,
     description=__doc__,
-    long_description=readme,
+    # long_description=readme,
     keywords='oarepo taxonomies',
     license='MIT',
     author='Daniel Kopecký',
