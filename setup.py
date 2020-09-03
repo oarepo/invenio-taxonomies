@@ -3,10 +3,13 @@
 
 """Wrapper that connect flask-taxonomies with Invenio"""
 import os
+from os import path
 
 from setuptools import find_packages, setup
 
-readme = open('README.md').read()
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 tests_require = [
     'pytest',
@@ -42,7 +45,8 @@ setup(
     name='oarepo_taxonomies',
     version=version,
     description=__doc__,
-    # long_description=readme,
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     keywords='oarepo taxonomies',
     license='MIT',
     author='Daniel Kopecký',
