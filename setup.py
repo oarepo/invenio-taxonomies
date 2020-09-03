@@ -30,6 +30,7 @@ install_requires = [
 ]
 
 packages = find_packages()
+print("PACKAGES: ", packages)
 
 # Get the version string. Cannot be done with import!
 g = {}
@@ -41,14 +42,13 @@ setup(
     name='oarepo_taxonomies',
     version=version,
     description=__doc__,
-    long_description=readme,
+    # long_description=readme,
     keywords='oarepo taxonomies',
     license='MIT',
     author='Daniel Kopecký',
     author_email='Daniel.Kopecky@techlib.cz',
     url='https://github.com/oarepo/oarepo-taxonomies',
-    packages=['oarepo_taxonomies', 'oarepo_taxonomies.import_export',
-              'oarepo_taxonomies.included_mappings', 'oarepo_taxonomies.jsonschemas'],
+    packages=packages,
     zip_safe=False,
     include_package_data=True,
     platforms='any',
