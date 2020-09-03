@@ -33,7 +33,6 @@ install_requires = [
 ]
 
 packages = find_packages()
-print("PACKAGES: ", packages)
 
 # Get the version string. Cannot be done with import!
 g = {}
