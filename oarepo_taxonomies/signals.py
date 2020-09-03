@@ -1,5 +1,7 @@
 import logging
 
+from flask_taxonomies.proxies import current_flask_taxonomies
+from invenio_db import db
 from oarepo_references.proxies import current_references
 
 from oarepo_taxonomies.exceptions import DeleteAbortedError
@@ -45,6 +47,18 @@ def taxonomy_term_moved(*args, **kwargs):
     new_url = new_term.links().envelope["self"]
     changed_records = current_references.reference_changed(old=old_url, new=new_url)
     logger.debug(f"Changed records: {changed_records}")
+
+
+def lock_term(*args, **kwargs):
+    locked_terms = kwargs.get("locked_terms")
+    term = kwargs.get("term")
+    if not term:
+        term = args[0]
+    if not locked_terms:
+        locked_terms = [kwargs["term"].id]
+    current_flask_taxonomies.mark_busy(locked_terms)
+    assert term.busy_count > 0
+    print("LOCK_TERM", args, kwargs)
 
 
 def raise_aborted_error(url):
