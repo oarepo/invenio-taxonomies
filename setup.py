@@ -28,7 +28,7 @@ install_requires = [
     'flask-taxonomies>=7.0.0a16',
     'flatten_json>=0.1.7,<1.0.0',
     'openpyxl>=3.0.4,<4.0.0',
-    'oarepo-mapping-includes>=1.1.0,<2.0.0',
+    'oarepo-mapping-includes>=1.2.0,<2.0.0',
     'oarepo-references[validate]>=1.8.3,<2.0.0'
 ]
 
@@ -68,8 +68,8 @@ setup(
         'invenio_jsonschemas.schemas': [
             'oarepo_taxonomies = oarepo_taxonomies.jsonschemas'
         ],
-        "oarepo_mapping_includes": [
-            "oarepo_taxonomies = oarepo_taxonomies.included_mappings"
+        "oarepo_mapping_handlers": [
+            "taxonomy-term = oarepo_taxonomies.mappings:taxonomy_term"
         ],
         'invenio_celery.tasks': [
             'oarepo_taxonomies = oarepo_taxonomies.tasks'

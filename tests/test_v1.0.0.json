@@ -9,7 +9,7 @@
         "index": true
       },
       "language": {
-        "type": "taxonomy-v2.0.0.json#/TaxonomyTerm"
+        "type": "taxonomy-term"
       }
     }
   }

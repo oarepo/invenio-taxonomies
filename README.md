@@ -1,4 +1,4 @@
-from marshmallow import Schema# oarepo-taxonomies
+# oarepo-taxonomies
 Wrapper that connect Flask-Taxonomies with Invenio.
 
 [![image][]][1]
@@ -171,7 +171,44 @@ The module provides the Marshmallow subschema `TaxonomyField`, which can be free
 TaxonomyField receives any user data and checks if the user data is JSON/dict, string or list.
 
 The output format of serialized taxonomies is the Taxonomic List, which contains ancestors in addition to the taxonomy
-itself. The order of taxonomy is from the parent term to the finite element of the taxonomy.
+itself. The order of taxonomy is from the parent term to the finite element of the taxonomy. For taxonomy reason, the
+serialization is opinionated. Example of taxonomy serialization is following:
+
+```json5
+[{
+        'is_ancestor': True,
+        'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+        'test': 'extra_data'
+    },
+        {
+            'created_at': '2014-08-11T05:26:03.869245',
+            'email': 'ken@yahoo.com',
+            'is_ancestor': False,
+            'links': {
+                'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
+                'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+            },
+            'name': 'Ken',
+            'test': 'extra_data'
+        }]
+```
+
+Taxonomy representation can be changed in config file (e.g.: invenio.cfg). For more details please see [Flask
+-Taxonomies](https://github.com/oarepo/flask-taxonomies#includes-and-excludes).
+
+This library use predefinded config that is located in `config.py`:
+
+```python
+FLASK_TAXONOMIES_REPRESENTATION = {
+    "taxonomy": {
+        'include': [INCLUDE_DATA, INCLUDE_ANCESTORS, INCLUDE_URL, INCLUDE_SELF,
+                    INCLUDE_ANCESTOR_LIST, INCLUDE_ANCESTOR_TAG, INCLUDE_PARENT],
+        'exclude': [],
+        'select': None,
+        'options': {}
+    }
+}
+```
 
 There are two ways to use TaxonomyField.
 
@@ -321,6 +358,69 @@ assert result == {
             'next': 'bla',
             'test': 'extra_data'
         }]
+}
+```
+#### TaxonomyField
+
+In most cases, if `TaxomySchema` is used, it is used as a subschema. For these cases, the `TaxonomyField` factory is
+provided, which behaves like a `marshmallow.Schema` with the difference that it accepts additional parameters.
+Signature of the factory is following `TaxonomyField(*args, extra=None, name=None, many=False,
+ mixins: list = None, **kwargs)`
+ 
+ * **args**: arbitrary arguments passed to marshmallow.schema
+ * **extra**: dictionary with other extra data
+ * **name**: name of dynamically created class
+ * **mixins**: list of added mixins (subschemas)
+ * **kwargs**: arbitrary named arguments passed to marshmallow.schema
+
+```python
+class InstitutionMixin:
+    name = SanitizedUnicode()
+    address = SanitizedUnicode()
+
+class TestSchema(Schema):
+    field = TaxonomyField(many=True, mixins=[InstitutionMixin])
+
+random_user_taxonomy = [
+        {
+            'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+        },
+        {
+            'links': {
+                'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+            },
+            'test': 'extra_data',
+            'next': 'bla',
+            'another': 'something',
+            'name': 'Hogwarts',
+            'address': 'Platform nine and three-quarters'
+        }
+    ]
+
+data = {
+    "field": random_user_taxonomy
+}
+
+schema = TestSchema()
+result = schema.load(data)
+assert result == {
+    'field': [{
+                  'is_ancestor': True,
+                  'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+                  'test': 'extra_data'
+              },
+              {
+                  'address': 'Platform nine and three-quarters',
+                  'another': 'something',
+                  'is_ancestor': False,
+                  'links': {
+                      'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
+                      'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+                  },
+                  'name': 'Hogwarts',
+                  'next': 'bla',
+                  'test': 'extra_data'
+              }]
 }
 ```
 
