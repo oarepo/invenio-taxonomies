@@ -31,6 +31,7 @@ recursive-include docs *.png
 recursive-include docs *.yml
 recursive-include docs *.py
 recursive-include docs *.rst
+recursive-include oarepo_taxonomies *.json
 
 exclude .licensevars
 exclude tests

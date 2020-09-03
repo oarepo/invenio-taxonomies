@@ -1,5 +1,6 @@
 {
   "TaxonomyTerm": {
+    "dynamic": false,
     "type": "object",
     "properties": {
       "is_ancestor": {

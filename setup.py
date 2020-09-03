@@ -47,7 +47,8 @@ setup(
     author='Daniel Kopecký',
     author_email='Daniel.Kopecky@techlib.cz',
     url='https://github.com/oarepo/oarepo-taxonomies',
-    packages=packages,
+    packages=['oarepo_taxonomies', 'oarepo_taxonomies.import_export',
+              'oarepo_taxonomies.included_mappings', 'oarepo_taxonomies.jsonschemas'],
     zip_safe=False,
     include_package_data=True,
     platforms='any',
@@ -67,6 +68,9 @@ setup(
         "oarepo_mapping_includes": [
             "oarepo_taxonomies = oarepo_taxonomies.included_mappings"
         ],
+        'invenio_celery.tasks': [
+            'oarepo_taxonomies = oarepo_taxonomies.tasks'
+        ]
     },
     extras_require=extras_require,
     install_requires=install_requires,
