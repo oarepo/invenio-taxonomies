@@ -2,14 +2,22 @@ import re
 from urllib.parse import urlparse
 
 from marshmallow import Schema, INCLUDE, pre_load, ValidationError, post_load
-from marshmallow.fields import Boolean
+from marshmallow.fields import Boolean, Nested
 from oarepo_references.mixins import InlineReferenceMixin
 from sqlalchemy.orm.exc import NoResultFound
 
 from oarepo_taxonomies.utils import get_taxonomy_json
 
 
-class TaxonomyField(Schema, InlineReferenceMixin):
+def TaxonomyField(*args, extra=None, name=None, many=False, mixins: list = None, **kwargs):
+    mixins = mixins or []
+    base_tuple = (TaxonomySchema, *mixins)
+    t = type(name or 'TaxonomyFieldWithExtra', base_tuple, extra or {})
+    taxonomy_schema = t(*args, many=many, **kwargs)
+    return Nested(taxonomy_schema)
+
+
+class TaxonomySchema(Schema, InlineReferenceMixin):
     class Meta:
         unknown = INCLUDE
 
