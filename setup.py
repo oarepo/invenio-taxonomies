@@ -11,7 +11,7 @@ readme = open('README.md').read()
 tests_require = [
     'pytest',
     'pytest-cov',
-    'oarepo[deploy-es7]'
+    'oarepo[tests]'
 ]
 extras_require = {
     "tests": tests_require
