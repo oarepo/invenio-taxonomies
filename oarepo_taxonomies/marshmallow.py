@@ -11,10 +11,21 @@ from oarepo_taxonomies.utils import get_taxonomy_json
 
 def TaxonomyField(*args, extra=None, name=None, many=False, mixins: list = None, **kwargs):
     mixins = mixins or []
-    base_tuple = (TaxonomySchema, *mixins)
-    t = type(name or 'TaxonomyFieldWithExtra', base_tuple, extra or {})
+    extra = extra or {}
+
+    required = kwargs.pop('required', False)
+
+    if extra or mixins:
+        base_tuple = (TaxonomySchema, *mixins)
+        t = type(name or ('TaxonomyFieldWithExtra_' +
+                          ''.join(x.__name__ for x in mixins) +
+                          '_' + '_'.join(extra.keys())),
+                 base_tuple, extra or {})
+    else:
+        t = TaxonomySchema
+
     taxonomy_schema = t(*args, many=many, **kwargs)
-    return Nested(taxonomy_schema)
+    return Nested(taxonomy_schema, required=required)
 
 
 class TaxonomySchema(Schema, InlineReferenceMixin):
