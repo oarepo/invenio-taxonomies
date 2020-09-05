@@ -139,3 +139,5 @@ requirements_diff/
 .travis-release-requirements.in
 
 .travis-release-requirements.txt
+
+.envrc

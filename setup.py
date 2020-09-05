@@ -29,7 +29,9 @@ install_requires = [
     'flatten_json>=0.1.7,<1.0.0',
     'openpyxl>=3.0.4,<4.0.0',
     'oarepo-mapping-includes>=1.2.0,<2.0.0',
-    'oarepo-references[validate]>=1.8.3,<2.0.0'
+    'oarepo-references[validate]>=1.8.3,<2.0.0',
+    'deepmerge>=0.1.0',
+    'boltons>=20.0.0'
 ]
 
 packages = find_packages()
