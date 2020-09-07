@@ -1,10 +1,10 @@
 import logging
 
 from flask_taxonomies.proxies import current_flask_taxonomies
-from invenio_db import db
 from oarepo_references.proxies import current_references
 
 from oarepo_taxonomies.exceptions import DeleteAbortedError
+from oarepo_taxonomies.tasks import async_reference_changed, unlock_term
 from oarepo_taxonomies.utils import get_taxonomy_json
 
 logger = logging.getLogger(__name__)
@@ -45,8 +45,10 @@ def taxonomy_term_moved(*args, **kwargs):
     new_term = kwargs["new_term"]
     old_url = old_term.links().envelope["self"]
     new_url = new_term.links().envelope["self"]
-    changed_records = current_references.reference_changed(old=old_url, new=new_url)
-    logger.debug(f"Changed records: {changed_records}")
+    # changed_records = current_references.reference_changed(old=old_url, new=new_url)
+    # async_reference_changed(old_url, new_url)
+    async_reference_changed.apply_async(args=(old_url, new_url), link=unlock_term.s(url=old_url))
+    # logger.debug(f"Changed records: {changed_records}")
 
 
 def lock_term(*args, **kwargs):

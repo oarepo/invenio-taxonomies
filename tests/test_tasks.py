@@ -1,8 +1,6 @@
-from oarepo_taxonomies.tasks import sum
+from oarepo_taxonomies.tasks import apptask
 
 
-def test_task_1(app, db):
-    result = sum.delay(2, 2)
-    print(sum(2, 2))
-    print(result)
-    print(result.result)
+def test_current_app():
+    r = apptask.delay()
+    print(r.result)
