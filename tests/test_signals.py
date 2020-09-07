@@ -133,7 +133,9 @@ def test_taxonomy_term_update(app, db, taxonomy_tree, test_record):
                 'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'
             }
         }, {
-            'new_data': 'changed extra data', 'is_ancestor': False, 'links': {
+            'new_data': 'changed extra data',
+            'test': 'extra_data',
+            'is_ancestor': False, 'links': {
                 'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b/c',
                 'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
             }
