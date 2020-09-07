@@ -1,5 +1,4 @@
 from celery import shared_task
-from flask import current_app
 from flask_taxonomies.proxies import current_flask_taxonomies
 from flask_taxonomies.term_identification import TermIdentification
 from oarepo_references.proxies import current_references
@@ -13,16 +12,16 @@ def async_reference_changed(old_url, new_url):
 
 
 @shared_task
+def async_reference_content_changed(ref_obj, ref_url=None, ref_uuid=None):
+    current_references.reference_content_changed(ref_obj, ref_url=ref_url, ref_uuid=ref_uuid)
+
+
+@shared_task
 def unlock_term(*args, **kwargs):
     term_url = kwargs.get("url")
     if not term_url:
         return
     _unlock_term(term_url)
-
-
-@shared_task
-def apptask():
-    return current_app.name
 
 
 def _unlock_term(term_url):

@@ -124,10 +124,10 @@ def app(mapping, schema):
         FLASK_TAXONOMIES_URL_PREFIX='/2.0/taxonomies/',
         RECORDS_REST_ENDPOINTS=RECORDS_REST_ENDPOINTS,
         CELERY_BROKER_URL='amqp://guest:guest@localhost:5672//',
-        # CELERY_TASK_ALWAYS_EAGER=True,
-        # CELERY_RESULT_BACKEND='cache',
-        # CELERY_CACHE_BACKEND='memory',
-        # CELERY_TASK_EAGER_PROPAGATES=True
+        CELERY_TASK_ALWAYS_EAGER=True,
+        CELERY_RESULT_BACKEND='cache',
+        CELERY_CACHE_BACKEND='memory',
+        CELERY_TASK_EAGER_PROPAGATES=True
     )
 
     app.secret_key = 'changeme'
