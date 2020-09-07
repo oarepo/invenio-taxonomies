@@ -1,6 +1,4 @@
 from flask import current_app
-from invenio_jsonschemas import current_jsonschemas
-from invenio_records.api import _records_state
 
 
 def test_init(app, schema):
