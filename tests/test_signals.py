@@ -4,6 +4,8 @@ from flask_taxonomies.term_identification import TermIdentification
 from invenio_records import Record
 
 from oarepo_taxonomies.exceptions import DeleteAbortedError
+from oarepo_taxonomies.signals import lock_term
+from oarepo_taxonomies.tasks import unlock_term
 
 
 def test_taxonomy_delete(app, db, taxonomy_tree, test_record):
@@ -98,26 +100,26 @@ def test_taxonomy_term_update(app, db, taxonomy_tree, test_record):
     assert old_record == {
         'pid': 1,
         'taxonomy': [{
-                         'is_ancestor': True,
-                         'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
-                         'test': 'extra_data'
-                     },
-                     {
-                         'is_ancestor': True,
-                         'links': {
-                             'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
-                             'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
-                         },
-                         'test': 'extra_data'
-                     },
-                     {
-                         'is_ancestor': False,
-                         'links': {
-                             'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b',
-                             'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b/c'
-                         },
-                         'test': 'extra_data'
-                     }],
+            'is_ancestor': True,
+            'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+            'test': 'extra_data'
+        },
+            {
+                'is_ancestor': True,
+                'links': {
+                    'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
+                    'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+                },
+                'test': 'extra_data'
+            },
+            {
+                'is_ancestor': False,
+                'links': {
+                    'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b',
+                    'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b/c'
+                },
+                'test': 'extra_data'
+            }],
         'title': 'record 1'
     }
     term = terms[-1]
@@ -133,9 +135,26 @@ def test_taxonomy_term_update(app, db, taxonomy_tree, test_record):
                 'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'
             }
         }, {
-            'new_data': 'changed extra data', 'is_ancestor': False, 'links': {
+            'new_data': 'changed extra data',
+            'test': 'extra_data',
+            'is_ancestor': False, 'links': {
                 'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b/c',
                 'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
             }
         }], 'pid': 1, 'title': 'record 1'
     }
+
+
+def test_lock_unlock_term(app, db, taxonomy_tree):
+    term_identification = TermIdentification(taxonomy="test_taxonomy", slug="a/b/c")
+    term = list(current_flask_taxonomies.filter_term(
+        term_identification))[0]
+    lock_term(locked_terms=[term.id], term=term)
+    db.session.commit()
+    term = list(current_flask_taxonomies.filter_term(
+        term_identification))[0]
+    assert term.busy_count == 1
+    unlock_term(url=term.links().envelope["self"])
+    term = list(current_flask_taxonomies.filter_term(
+        term_identification))[0]
+    assert term.busy_count == 0

@@ -7,7 +7,7 @@ from marshmallow.fields import Nested, List
 from sqlalchemy.orm.exc import NoResultFound
 
 from oarepo_taxonomies.marshmallow import TaxonomySchema, extract_link, get_slug_from_link, \
-    TaxonomyField
+    TaxonomyField, TaxonomyNested
 
 
 def test_resolve_links_random():
@@ -97,7 +97,7 @@ def test_resolve_links_random_string_3(app, db, taxonomy_tree):
     """
     random_user_data = "bla bla http://example.com/taxonomies/a/b/z"
     schema = TaxonomySchema()
-    with pytest.raises(NoResultFound):
+    with pytest.raises(ValidationError, match="Taxonomy term 'a/b/z' has not been found"):
         schema.load(random_user_data)
 
 
@@ -322,7 +322,7 @@ def test_taxonomy_field():
         "language": List(SanitizedUnicode(required=False))
     }
     schema = TaxonomyField(extra=extra, name="taxonomy")
-    assert type(schema) == Nested
+    assert type(schema) == TaxonomyNested
     assert "title" in schema.nested.fields.keys()
     assert "language" in schema.nested.fields.keys()
 
