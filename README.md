@@ -1,4 +1,4 @@
-from marshmallow import Schema# oarepo-taxonomies
+# oarepo-taxonomies
 Wrapper that connect Flask-Taxonomies with Invenio.
 
 [![image][]][1]
@@ -167,11 +167,49 @@ An xlsx and csv file is created in the current folder where the task was run.
 
 ### Marshmallow
 The Marshmallow module serialize Taxonomy and dereference reference from links/self.
-The module provides the Marshmallow subschema `TaxonomyField`, which can be freely used in the user schema.
-TaxonomyField receives any user data and checks if the user data is JSON/dict, string or list.
+The module provides the Marshmallow field `TaxonomyField` and schema ``TaxonomySchema``, 
+which can be freely used in the user schema.
+TaxonomyField/Schema receives any user data and checks if the user data is JSON/dict, string or list.
 
 The output format of serialized taxonomies is the Taxonomic List, which contains ancestors in addition to the taxonomy
-itself. The order of taxonomy is from the parent term to the finite element of the taxonomy.
+itself. The order of taxonomy is from the parent term to the finite element of the taxonomy. For taxonomy reason, the
+serialization is opinionated. Example of taxonomy serialization is following:
+
+```json5
+[{
+        'is_ancestor': true,
+        'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+        'test': 'extra_data'
+    },
+        {
+            'created_at': '2014-08-11T05:26:03.869245',
+            'email': 'ken@yahoo.com',
+            'is_ancestor': false,
+            'links': {
+                'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
+                'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+            },
+            'name': 'Ken',
+            'test': 'extra_data'
+        }]
+```
+
+Taxonomy representation can be changed in config file (e.g.: invenio.cfg). For more details 
+please see [Flask-Taxonomies](https://github.com/oarepo/flask-taxonomies#includes-and-excludes).
+
+This library use predefinded config that is located in `config.py`:
+
+```python
+FLASK_TAXONOMIES_REPRESENTATION = {
+    "taxonomy": {
+        'include': [INCLUDE_DATA, INCLUDE_ANCESTORS, INCLUDE_URL, INCLUDE_SELF,
+                    INCLUDE_ANCESTOR_LIST, INCLUDE_ANCESTOR_TAG, INCLUDE_PARENT],
+        'exclude': [],
+        'select': None,
+        'options': {}
+    }
+}
+```
 
 There are two ways to use TaxonomyField.
 
@@ -180,22 +218,16 @@ There are two ways to use TaxonomyField.
         The dictionary must contain the nested dictionary with name `links`, which contains `self`.
     * string: Any text that contains a url to the taxonomy.
 2. The input format is list of ancestors, where last is the referenced taxonomy.
- Creating an `TaxonomyField` instance must contain a named parameter `many = True`.
-  Unfortunately, `marshmallow.List` cannot be used.
-  
-  :warning: Please avoid using `marshmallow.List(marshmallow.Nested (TaxonomyField))`. Use `marshmallow.Nested
-  (TaxonomyField(many=True))` instead.
  
 * dictionary       
 ```python
-from marshmallow.fields import Nested
 from marshmallow import Schema
 
 from oarepo_taxonomies.marshmallow import TaxonomyField
 
 # custom schema
 class TestSchema(Schema):
-    field = Nested(TaxonomyField())
+    field = TaxonomyField()
 
 # taxonomy dict
 random_user_taxonomy = {
@@ -236,14 +268,13 @@ assert result == {
     
 * string       
 ```python
-from marshmallow.fields import Nested
 from marshmallow import Schema
 
 from oarepo_taxonomies.marshmallow import TaxonomyField
 
 # custom schema
 class TestSchema(Schema):
-    field = Nested(TaxonomyField())
+    field = TaxonomyField()
 
 # taxonomy reference as any string with url
 random_user_taxonomy = "bla bla http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b"
@@ -274,14 +305,13 @@ assert result == {
 
 * list
 ```python
-from marshmallow.fields import Nested
 from marshmallow import Schema
 
 from oarepo_taxonomies.marshmallow import TaxonomyField
 
 # custom schema
 class TestSchema(Schema):
-    field = Nested(TaxonomyField(many=True))
+    field = TaxonomyField()
 
 # taxonomy list with ancestor (root ancestor at the first place)
 random_user_taxonomy = [
@@ -323,6 +353,74 @@ assert result == {
         }]
 }
 ```
+#### TaxonomyField vs. TaxonomySchema
+
+``TaxonomySchema`` is a marshmallow schema, that can be subclassed and used, for example,
+inside ``Nested``.
+
+``TaxonomyField`` is a marshmallow ``Field`` that is used as is. The field also allows extending
+taxonomy metadata model with extra properties.
+
+Signature of the factory is following `TaxonomyField(*args, extra=None, name=None, many=False,
+ mixins: list = None, **kwargs)`
+ 
+ * **args**: arbitrary arguments passed to marshmallow.schema
+ * **extra**: a dictionary of extra marshmallow fields (key: field name, value: instance of Field)
+ * **name**: optional name of the field (it is used as a name of the dynamically created class 
+             on the background)
+ * **mixins**: list of added mixins (class defining extra marshmallow Fields)
+ * **kwargs**: arbitrary named arguments passed to the generated marshmallow schemas
+
+```python
+class InstitutionMixin:
+    name = SanitizedUnicode()
+    address = SanitizedUnicode()
+
+class TestSchema(Schema):
+    field = TaxonomyField(many=True, mixins=[InstitutionMixin])
+
+random_user_taxonomy = [
+        {
+            'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+        },
+        {
+            'links': {
+                'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+            },
+            'test': 'extra_data',
+            'next': 'bla',
+            'another': 'something',
+            'name': 'Hogwarts',
+            'address': 'Platform nine and three-quarters'
+        }
+    ]
+
+data = {
+    "field": random_user_taxonomy
+}
+
+schema = TestSchema()
+result = schema.load(data)
+assert result == {
+    'field': [{
+                  'is_ancestor': True,
+                  'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
+                  'test': 'extra_data'
+              },
+              {
+                  'address': 'Platform nine and three-quarters',
+                  'another': 'something',
+                  'is_ancestor': False,
+                  'links': {
+                      'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
+                      'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
+                  },
+                  'name': 'Hogwarts',
+                  'next': 'bla',
+                  'test': 'extra_data'
+              }]
+}
+```
 
 ### JSONSchemas
 
@@ -355,7 +453,8 @@ Custom schema example:
 
 Predefined mappings can be used for indexing into Elasticsearch. If you want to use this mapping you must use the
 library [OAREPO mapping includes](https://github.com/oarepo/oarepo-mapping-includes). A reference to
-taxonomy mapping is then inserted to custom mapping `"type": "taxonomy-v2.0.0.json#/TaxonomyTerm"`.
+taxonomy mapping is then inserted to custom mapping as either 
+`"type": "taxonomy-v2.0.0.json#/TaxonomyTerm"` or `"type": "taxonomy-term"`.
 
 Custom mapping example:
 

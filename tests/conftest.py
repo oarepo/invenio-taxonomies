@@ -38,7 +38,7 @@ from oarepo_validate import MarshmallowValidatedRecordMixin
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
 from oarepo_taxonomies.ext import OarepoTaxonomies
-from oarepo_taxonomies.marshmallow import TaxonomyField
+from oarepo_taxonomies.marshmallow import TaxonomySchema
 from tests.helpers import set_identity
 
 
@@ -46,7 +46,7 @@ class TestSchema(Schema):
     """Test record schema."""
     title = SanitizedUnicode()
     pid = Integer()
-    taxonomy = Nested(TaxonomyField, required=False)
+    taxonomy = Nested(TaxonomySchema, required=False)
 
 
 class TestRecord(MarshmallowValidatedRecordMixin,
@@ -69,7 +69,7 @@ class TaxonomyRecord(MarshmallowValidatedRecordMixin,
                      ReferenceEnabledRecordMixin,
                      Record):
     """Record for testing inlined taxonomies."""
-    MARSHMALLOW_SCHEMA = TaxonomyField
+    MARSHMALLOW_SCHEMA = TaxonomySchema
     VALIDATE_MARSHMALLOW = True
     VALIDATE_PATCH = True
 
