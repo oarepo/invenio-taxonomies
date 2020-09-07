@@ -19,6 +19,7 @@ from invenio_access import InvenioAccess
 from invenio_accounts import InvenioAccounts
 from invenio_accounts.models import User, Role
 from invenio_base.signals import app_loaded
+from invenio_celery import InvenioCelery
 from invenio_db import InvenioDB
 from invenio_db import db as db_
 from invenio_indexer.api import RecordIndexer
@@ -122,7 +123,13 @@ def app(mapping, schema):
         PIDSTORE_RECID_FIELD='pid',
         FLASK_TAXONOMIES_URL_PREFIX='/2.0/taxonomies/',
         RECORDS_REST_ENDPOINTS=RECORDS_REST_ENDPOINTS,
+        CELERY_BROKER_URL='amqp://guest:guest@localhost:5672//',
+        CELERY_TASK_ALWAYS_EAGER=True,
+        CELERY_RESULT_BACKEND='cache',
+        CELERY_CACHE_BACKEND='memory',
+        CELERY_TASK_EAGER_PROPAGATES=True
     )
+
     app.secret_key = 'changeme'
     print(os.environ.get("INVENIO_INSTANCE_PATH"))
 
@@ -137,6 +144,10 @@ def app(mapping, schema):
     OARepoMappingIncludesExt(app)
     InvenioRecords(app)
     InvenioRecordsREST(app)
+    InvenioCelery(app)
+
+    # Celery
+    print(app.config["CELERY_BROKER_URL"])
 
     login_manager = LoginManager()
     login_manager.init_app(app)

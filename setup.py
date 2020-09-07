@@ -25,7 +25,7 @@ setup_requires = [
 ]
 
 install_requires = [
-    'flask-taxonomies>=7.0.0a16',
+    'flask-taxonomies>=7.0.0a17',
     'flatten_json>=0.1.7,<1.0.0',
     'openpyxl>=3.0.4,<4.0.0',
     'oarepo-mapping-includes>=1.2.0,<2.0.0',

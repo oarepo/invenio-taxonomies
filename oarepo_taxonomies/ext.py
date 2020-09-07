@@ -1,10 +1,11 @@
 from flask_taxonomies.ext import FlaskTaxonomies
 from flask_taxonomies.signals import before_taxonomy_deleted, before_taxonomy_term_deleted, \
-    before_taxonomy_term_moved, after_taxonomy_term_moved, after_taxonomy_term_updated
+    before_taxonomy_term_moved, after_taxonomy_term_moved, after_taxonomy_term_updated, \
+    before_taxonomy_term_updated
 from flask_taxonomies.views import blueprint
 
 from oarepo_taxonomies.signals import taxonomy_delete, taxonomy_term_moved, taxonomy_term_delete, \
-    taxonomy_term_update
+    taxonomy_term_update, lock_term
 
 
 class OarepoTaxonomies(object):
@@ -28,7 +29,9 @@ class OarepoTaxonomies(object):
         # connect signals
         before_taxonomy_deleted.connect(taxonomy_delete)
         before_taxonomy_term_deleted.connect(taxonomy_term_delete)
+        before_taxonomy_term_updated.connect(lock_term)
         after_taxonomy_term_updated.connect(taxonomy_term_update)
+        before_taxonomy_term_moved.connect(lock_term)
         after_taxonomy_term_moved.connect(taxonomy_term_moved)
 
     def init_config(self, app):

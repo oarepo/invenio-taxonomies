@@ -58,3 +58,13 @@ def get_taxonomy_json(code=None,
         has_query=q is not None
     )
     return paginator
+
+
+# def unlock_term(term_url):
+#     slug, taxonomy_code = get_slug_from_link(term_url)
+#     term_identification = TermIdentification(taxonomy=taxonomy_code, slug=slug)
+#     term = list(current_flask_taxonomies.filter_term(
+#         term_identification))[0]
+#     busy_count_0 = term.busy_count
+#     current_flask_taxonomies.unmark_busy([term.id])
+#     assert term.busy_count < busy_count_0
