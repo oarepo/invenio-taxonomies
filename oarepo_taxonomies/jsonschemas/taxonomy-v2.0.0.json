@@ -1,39 +1,14 @@
 {
   "definitions": {
-    "TaxonomyBaseTerm": {
-      "$id": "#TaxonomyBaseTerm",
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "is_ancestor": {
-          "type": "boolean"
-        },
-        "links": {
-          "type": "object",
-          "properties": {
-            "self": {
-              "type": "string"
-            },
-            "parent": {
-              "type": "string"
-            }
-          }
-        }
-      }
-    },
-    "TaxonomyTerm": {
+    "Term": {
       "type": "array",
       "items": {
-        "allOf": [
-          {
-            "$ref": "#/definitions/TaxonomyTerm"
-          },
-          {
-            "type": "object",
-            "additionalProperties": true
-          }
-        ]
+        "type": "object",
+        "additionalProperties": true
       }
+    },
+    "TermArray": {
+      "$ref": "#/definitions/Term"
     }
   }
 }
