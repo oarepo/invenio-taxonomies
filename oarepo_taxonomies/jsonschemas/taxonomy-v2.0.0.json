@@ -26,7 +26,7 @@
       "items": {
         "allOf": [
           {
-            "$ref": "#/definitions/TaxonomyTerm"
+            "$ref": "#/definitions/TaxonomyBaseTerm"
           },
           {
             "type": "object",
