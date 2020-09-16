@@ -108,6 +108,7 @@ level all children, level 1 second offspring ... etc.
 |--------|----------|----------------|----------------|
 | cities | Města    | Cities         |                |
 |        |          |                |                |
+|        |          |                |                |
 | level  | slug     |       title_cs |       title_en |
 | 1      | eu       |         Evropa |         Europe |
 | 2      | cz       | Česko          | Czechia        |
