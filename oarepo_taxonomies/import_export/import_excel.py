@@ -55,8 +55,10 @@ def create_update_terms(taxonomy,
         term = current_flask_taxonomies.filter_term(identification).one_or_none()
         if term:
             current_flask_taxonomies.update_term(identification, extra_data=term_dict)
+            print(f'Term "{identification}" has been updated')
         else:
             term = current_flask_taxonomies.create_term(identification, extra_data=term_dict)
+            print(f'Term "{identification}" has been created')
         stack.append(term)
     db.session.commit()
 
