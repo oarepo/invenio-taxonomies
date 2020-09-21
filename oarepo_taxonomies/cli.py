@@ -29,10 +29,11 @@ def init_db():
 @click.option('--str', 'str_args', multiple=True)
 @click.option('--bool', 'bool_args', multiple=True)
 @click.option('--drop/--no-drop', default=False)
+@click.option('--resolve/--no-resolve', default=False)
 @with_appcontext
-def import_taxonomy(taxonomy_file, int_conversions, str_args, bool_args, drop):
+def import_taxonomy(taxonomy_file, int_conversions, str_args, bool_args, drop, resolve):
     from .import_export import import_taxonomy
-    import_taxonomy(taxonomy_file, int_conversions, str_args, bool_args, drop)
+    import_taxonomy(taxonomy_file, int_conversions, str_args, bool_args, drop, resolve_list=resolve)
 
 
 @taxonomies.command('export')
