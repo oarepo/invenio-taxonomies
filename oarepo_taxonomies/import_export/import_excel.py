@@ -10,14 +10,17 @@ def import_taxonomy(taxonomy_file,
                     str_args: tuple = tuple(),
                     int_conversions: tuple = tuple(),
                     bool_args: tuple = tuple(),
-                    drop=False):
+                    drop=False,
+                    resolve_list=False
+                    ):
     data = extract_data(taxonomy_file)
 
     taxonomy_header, row = read_block(data, 0)
     taxonomy_data, row = read_block(data, row)
 
     taxonomy = create_update_taxonomy(taxonomy_header, drop)
-    create_update_terms(taxonomy, taxonomy_data, str_args, int_conversions, bool_args)
+    create_update_terms(taxonomy, taxonomy_data, str_args, int_conversions, bool_args,
+                        resolve_list=resolve_list)
 
 
 def extract_data(taxonomy_file):
@@ -28,14 +31,24 @@ def extract_data(taxonomy_file):
     return data
 
 
+def get_resolved_list(v):
+    if isinstance(v, str) and v.startswith("[") and v.endswith("]"):
+        return eval(v)
+    return v
+
+
 def create_update_terms(taxonomy,
                         taxonomy_data,
                         str_args: tuple = tuple(),
                         int_conversions: tuple = tuple(),
-                        bool_args: tuple = tuple()):
+                        bool_args: tuple = tuple(),
+                        resolve_list=False
+                        ):
     stack = [taxonomy]
     for term_dict in convert_data_to_dict(taxonomy_data, str_args=str_args,
                                           int_conversions=int_conversions, bool_args=bool_args):
+        if resolve_list:
+            term_dict = {k: get_resolved_list(v) for k, v in term_dict.items()}
         level = int(term_dict.pop('level'))
         try:
             slug = term_dict.pop('slug')

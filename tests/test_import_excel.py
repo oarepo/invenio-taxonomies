@@ -1,8 +1,10 @@
 import pathlib
+from pprint import pprint
 
 import pytest
 from flask_taxonomies.models import TaxonomyTerm
 from flask_taxonomies.proxies import current_flask_taxonomies
+from flask_taxonomies.term_identification import TermIdentification
 
 from oarepo_taxonomies.import_export import import_taxonomy
 from oarepo_taxonomies.import_export.import_excel import extract_data, read_block, \
@@ -69,6 +71,25 @@ def test_create_update_terms(app, db, taxonomy_data):
     assert res[0].level == 0
     assert res[1].slug == "cc/1-0"
     assert res[1].level == 1
+
+
+def test_create_update_terms_2(app, db, taxonomy_data_list):
+    taxonomy_code = "licenses"
+    slug = "copyright"
+    taxonomy = current_flask_taxonomies.create_taxonomy(taxonomy_code, extra_data={
+        "title":
+            {
+                "cs": "Licence",
+                "en": "Licenses"
+            }
+    }
+                                                        )
+    create_update_terms(taxonomy, taxonomy_data_list, resolve_list=True)  # creating
+    create_update_terms(taxonomy, taxonomy_data_list, resolve_list=True) # updating
+    term_identification = TermIdentification(taxonomy=taxonomy_code, slug=slug)
+    res = list(current_flask_taxonomies.filter_term(
+        term_identification))
+    assert isinstance(res[0].extra_data["list"], list)
 
 
 def test_import_taxonomy(app, db):
@@ -267,6 +288,16 @@ def taxonomy_data():
                                                                   'https://creativecommons.org/licenses/by-nc-nd/4.0/'],
             ['1', 'copyright', 'Dílo je chráněno podle autorského zákona č. 121/2000 Sb.',
              'This work is protected under the Copyright Act No. 121/2000 Coll.', '', '']]
+
+
+@pytest.fixture()
+def taxonomy_data_list():
+    return [
+        ['level', 'slug', 'title_cs', 'title_en', 'icon', 'related_uri', 'title_sk', 'list'],
+        ['1', 'copyright', 'Dílo je chráněno podle autorského zákona č. 121/2000 Sb.',
+         'This work is protected under the Copyright Act No. 121/2000 Coll.', '', '',
+         'test other language', "['C01', 'C01.252', 'C01.252.400']"],
+    ]
 
 
 @pytest.fixture
