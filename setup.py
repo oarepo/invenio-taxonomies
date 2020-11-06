@@ -14,7 +14,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 tests_require = [
     'pytest',
     'pytest-cov',
-    'oarepo[tests]'
+    'oarepo'
 ]
 extras_require = {
     "tests": tests_require
@@ -26,7 +26,7 @@ setup_requires = [
 
 install_requires = [
     'flask-taxonomies>=7.0.0a17',
-    'flatten_json>=0.1.7,<1.0.0',
+    'flatten_json>=0.1.7,<1.0.0,!=0.1.8',
     'openpyxl>=3.0.4,<4.0.0',
     'oarepo-mapping-includes>=1.2.0,<2.0.0',
     'oarepo-references[validate]>=1.8.3,<2.0.0',
