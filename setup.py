@@ -14,7 +14,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 tests_require = [
     'pytest',
     'pytest-cov',
-    'oarepo'
+    'oarepo==3.3.26',
 ]
 extras_require = {
     "tests": tests_require

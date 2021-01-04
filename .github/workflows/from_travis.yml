@@ -1,0 +1,47 @@
+name: Oarepo build script ported from travis
+
+on:
+  push:
+    branches: [ master, main, devel ]
+    tags: [ '*' ]
+  pull_request:
+    branches: [ master, main, devel ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ 3.7, 3.8 ]
+    steps:
+      - name: Checkout oarepo/oarepo
+        uses: actions/checkout@v2
+      - name: Set up Python ver.${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Before_install
+        run: |
+          pip install --upgrade pip setuptools
+          pip install twine wheel coveralls requirements-builder pip-tools
+          requirements-builder --level=pypi -e tests setup.py > .travis-release-requirements.in
+          pip-compile -U --verbose -o .travis-release-requirements.txt .travis-release-requirements.in
+          cat .travis-release-requirements.txt
+      - name: Install
+        run: |
+          pip install -r .travis-release-requirements.txt
+      - name: Run-tests
+        run: |
+          ./run-tests.sh
+      #      - name: Check manifest
+      #        run: |
+      #          check-manifest
+      - name: Build package to publish
+        run: |
+          python setup.py sdist bdist_wheel
+      - name: Publish package
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_PASSWORD }}
