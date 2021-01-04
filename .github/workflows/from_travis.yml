@@ -2,10 +2,10 @@ name: Oarepo build script ported from travis
 
 on:
   push:
-    branches: [ master, main ]
+    branches: [ master, main, devel ]
     tags: [ '*' ]
   pull_request:
-    branches: [ master, main ]
+    branches: [ master, main, devel ]
 
 jobs:
   build:
