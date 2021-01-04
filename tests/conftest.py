@@ -35,6 +35,7 @@ from oarepo_mapping_includes.ext import OARepoMappingIncludesExt
 from oarepo_references import OARepoReferences
 from oarepo_references.mixins import ReferenceEnabledRecordMixin
 from oarepo_validate import MarshmallowValidatedRecordMixin
+from oarepo_validate.ext import OARepoValidate
 from sqlalchemy_utils import database_exists, create_database, drop_database
 
 from oarepo_taxonomies.ext import OarepoTaxonomies
@@ -145,6 +146,7 @@ def app(mapping, schema):
     InvenioRecords(app)
     InvenioRecordsREST(app)
     InvenioCelery(app)
+    OARepoValidate(app)
 
     # Celery
     print(app.config["CELERY_BROKER_URL"])
