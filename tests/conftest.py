@@ -198,7 +198,7 @@ def db(app):
     if not database_exists(str(db_.engine.url)):
         create_database(db_.engine.url)
     db_.create_all()
-    subprocess.run(["invenio", "taxonomies", "init"])
+    subprocess.run(["invenio", "taxonomies", "init", "--create-db"])
     yield db_
 
     # Explicitly close DB connection
