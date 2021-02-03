@@ -1,9 +1,10 @@
 from flask_taxonomies.models import Taxonomy
 from flask_taxonomies.proxies import current_flask_taxonomies
 from flask_taxonomies.term_identification import TermIdentification
-from flatten_json import unflatten_list
 from invenio_db import db
 from slugify import slugify
+
+from oarepo_taxonomies.unflatten import unflatten_list
 
 
 def import_taxonomy(taxonomy_file,
