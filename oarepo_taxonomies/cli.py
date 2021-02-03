@@ -1,9 +1,10 @@
 import click
+from click import secho
 from flask import cli
 from flask.cli import with_appcontext
 from flask_taxonomies.models import Base
 from invenio_db import db as db_
-from sqlalchemy_utils import database_exists, create_database
+from sqlalchemy_utils import create_database
 
 
 @click.group()
@@ -11,16 +12,27 @@ def taxonomies():
     """Taxonomies commands."""
 
 
+@taxonomies.group()
+def index():
+    """Index commands"""
+
+
 @taxonomies.command("init")
+@click.option('--create-db/--no-create-db', 'create_db', default=False)
 @cli.with_appcontext
-def init_db():
+def init_db(create_db=False):
     """
     Management task that initialize database tables.
     """
     engine = db_.engine
-    if not database_exists(engine.url):  # pragma: no cover
+    if create_db:
         create_database(engine.url)
+    if db_.session.bind.dialect.name == 'postgresql':
+        with engine.connect() as connection:
+            connection.execute(
+                "create extension ltree")
     Base.metadata.create_all(engine)
+
 
 
 @taxonomies.command('import')
@@ -42,3 +54,18 @@ def import_taxonomy(taxonomy_file, int_conversions, str_args, bool_args, drop, r
 def export_taxonomy(taxonomy_code):
     from .import_export import export_taxonomy
     export_taxonomy(taxonomy_code)
+
+
+@index.command('create')
+@with_appcontext
+def create():
+    """
+    Creates index on extra_data, it works only in postgresql environment.
+    """
+    engine = db_.engine
+    if db_.session.bind.dialect.name == 'postgresql':
+        with engine.connect() as connection:
+            connection.execute(
+                "CREATE INDEX index_extra_data ON taxonomy_term USING gin (extra_data)")
+    else:
+        secho("JSONB index is enabled only in postgresql dialect", fg="magenta")

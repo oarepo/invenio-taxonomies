@@ -84,7 +84,7 @@ def test_create_update_terms_2(app, db, taxonomy_data_list):
     }
                                                         )
     create_update_terms(taxonomy, taxonomy_data_list, resolve_list=True)  # creating
-    create_update_terms(taxonomy, taxonomy_data_list, resolve_list=True) # updating
+    create_update_terms(taxonomy, taxonomy_data_list, resolve_list=True)  # updating
     term_identification = TermIdentification(taxonomy=taxonomy_code, slug=slug)
     res = list(current_flask_taxonomies.filter_term(
         term_identification))
@@ -94,6 +94,16 @@ def test_create_update_terms_2(app, db, taxonomy_data_list):
 def test_import_taxonomy(app, db):
     file_path = pathlib.Path(__file__).parent.absolute()
     data_path = file_path / "data" / "licenses_v2.xlsx"
+    import_taxonomy(str(data_path))
+    taxonomy = current_flask_taxonomies.list_taxonomies(session=None).all()[0]
+    taxonomy_list = current_flask_taxonomies.list_taxonomy(taxonomy).all()
+    assert len(taxonomy_list) > 0
+    assert isinstance(taxonomy_list[1], TaxonomyTerm)
+
+
+def test_import_taxonomy_2(app, db):
+    file_path = pathlib.Path(__file__).parent.absolute()
+    data_path = file_path / "data" / "studyFields.xlsx"
     import_taxonomy(str(data_path))
     taxonomy = current_flask_taxonomies.list_taxonomies(session=None).all()[0]
     taxonomy_list = current_flask_taxonomies.list_taxonomy(taxonomy).all()
