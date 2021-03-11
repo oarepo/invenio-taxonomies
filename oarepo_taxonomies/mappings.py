@@ -4,7 +4,7 @@ from oarepo_mapping_includes import Mapping
 
 def taxonomy_term(content=None, **kwargs):
     ret = {
-        "type": "object",
+        "type": "nested",
         "properties": {
             "is_ancestor": {
                 "type": "boolean"
@@ -19,6 +19,9 @@ def taxonomy_term(content=None, **kwargs):
                         "type": "keyword"
                     }
                 }
+            },
+            "level": {
+                "type": "integer"
             }
         }
     }
