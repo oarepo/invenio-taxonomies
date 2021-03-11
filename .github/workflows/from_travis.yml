@@ -16,6 +16,10 @@ jobs:
     steps:
       - name: Checkout package
         uses: actions/checkout@v2
+      - name: Runs Elasticsearch
+        uses: elastic/elastic-github-actions/elasticsearch@master
+        with:
+          stack-version: 7.6.0
       - name: Set up Python ver.${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
