@@ -4,11 +4,7 @@
     "numeric_detection": false,
     "dynamic": true,
     "properties": {
-      "$schema": {
-        "type": "keyword",
-        "index": true
-      },
-      "language": {
+      "test": {
         "type": "taxonomy-term"
       }
     }

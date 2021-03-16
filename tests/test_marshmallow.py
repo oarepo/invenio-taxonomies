@@ -42,6 +42,7 @@ def test_resolve_links_random_link(taxonomy_tree):
     # pprint(res)
     assert res == [{
         'is_ancestor': True,
+        'level': 1,
         'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
         'test': 'extra_data'
     },
@@ -49,6 +50,7 @@ def test_resolve_links_random_link(taxonomy_tree):
             'created_at': '2014-08-11T05:26:03.869245',
             'email': 'ken@yahoo.com',
             'is_ancestor': False,
+            'level': 2,
             'links': {
                 'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
                 'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
@@ -68,11 +70,13 @@ def test_resolve_links_random_string(app, db, taxonomy_tree):
     # pprint(result)
     assert result == [{
         'is_ancestor': True,
+        'level': 1,
         'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
         'test': 'extra_data'
     },
         {
             'is_ancestor': False,
+            'level': 2,
             'links': {
                 'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
                 'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
@@ -133,12 +137,14 @@ def test_resolve_links_array(app, db, taxonomy_tree):
     # pprint(result)
     assert result == [{
         'is_ancestor': True,
+        'level': 1,
         'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
         'test': 'extra_data'
     },
         {
             'another': 'something',
             'is_ancestor': False,
+            'level': 2,
             'links': {
                 'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
                 'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
@@ -170,6 +176,7 @@ def test_nested_schema(app, db, taxonomy_tree):
     assert result == {
         'field': [{
             'is_ancestor': True,
+            'level': 1,
             'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
             'test': 'extra_data'
         },
@@ -177,6 +184,7 @@ def test_nested_schema(app, db, taxonomy_tree):
                 'created_at': '2014-08-11T05:26:03.869245',
                 'email': 'ken@yahoo.com',
                 'is_ancestor': False,
+                'level': 2,
                 'links': {
                     'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
                     'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
@@ -215,12 +223,14 @@ def test_nested_schema_2(app, db, taxonomy_tree):
     assert result == {
         'field': [{
             'is_ancestor': True,
+            'level': 1,
             'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
             'test': 'extra_data'
         },
             {
                 'another': 'something',
                 'is_ancestor': False,
+                'level': 2,
                 'links': {
                     'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
                     'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
@@ -286,11 +296,13 @@ def test_nested_schema_4(app, db, taxonomy_tree):
     assert result == {
         'field': [{
             'is_ancestor': True,
+            'level': 1,
             'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
             'test': 'extra_data'
         },
             {
                 'is_ancestor': False,
+                'level': 2,
                 'links': {
                     'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
                     'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
@@ -361,6 +373,7 @@ def test_taxonomy_field_mixin(app, db, taxonomy_tree):
     assert result == {
         'field': [{
                       'is_ancestor': True,
+                      'level': 1,
                       'links': {'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a'},
                       'test': 'extra_data'
                   },
@@ -368,6 +381,7 @@ def test_taxonomy_field_mixin(app, db, taxonomy_tree):
                       'address': 'Platform nine and three-quarters',
                       'another': 'something',
                       'is_ancestor': False,
+                      'level': 2,
                       'links': {
                           'parent': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a',
                           'self': 'http://127.0.0.1:5000/2.0/taxonomies/test_taxonomy/a/b'
