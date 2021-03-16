@@ -48,6 +48,12 @@ jobs:
       - name: Run-tests
         run: |
           ./run-tests.sh
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
