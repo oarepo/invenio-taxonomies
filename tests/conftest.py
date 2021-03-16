@@ -10,6 +10,7 @@ from collections import namedtuple
 from pathlib import Path
 
 import pytest
+from elasticsearch import Elasticsearch
 from flask import Flask, make_response, url_for, current_app
 from flask_login import LoginManager, login_user
 from flask_principal import RoleNeed, Principal, Permission
@@ -204,6 +205,21 @@ def db(app):
     # Explicitly close DB connection
     db_.session.close()
     db_.drop_all()
+
+
+@pytest.fixture()
+def es():
+    return Elasticsearch()
+
+
+@pytest.yield_fixture
+def es_index(es):
+    index_name = "test_index"
+    if not es.indices.exists(index=index_name):
+        yield es.indices.create(index_name)
+
+    if es.indices.exists(index=index_name):
+        es.indices.delete(index_name)
 
 
 @pytest.fixture

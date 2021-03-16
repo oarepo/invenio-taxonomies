@@ -1,9 +1,10 @@
 from datetime import datetime
+from pprint import pprint
 
 from oarepo_taxonomies.unflatten import unflatten, convert_to_list
 
 
-def test_unflatten_list():
+def test_unflatten():
     dict_ = {
         'level': '2',
         'slug': 'O_historie',
@@ -49,6 +50,48 @@ def test_unflatten_list():
         'title': {'cs': 'Historie'}
     }
     print(datetime.now() - t0)
+
+
+def test_unflatten_2():
+    input = {
+        'level': '2', 'slug': 'D012046', 'title_cs': 'rehabilitace', 'title_en': 'Rehabilitation',
+        'relatedURI_0': 'http://www.medvik.cz/link/D012046',
+        'relatedURI_1': 'http://id.nlm.nih.gov/mesh/D012046', 'TreeNumberList_0': 'E02',
+        'TreeNumberList_1': 'E02.760', 'TreeNumberList_2': 'E02.760.169',
+        'TreeNumberList_3': 'E02.760.169.063', 'TreeNumberList_4': 'E02.760.169.063.500',
+        'TreeNumberList_5': 'E02', 'TreeNumberList_6': 'E02.831', 'TreeNumberList_7': 'H02',
+        'TreeNumberList_8': 'H02.403', 'TreeNumberList_9': 'H02.403.680',
+        'TreeNumberList_10': 'H02.403.680.600', 'TreeNumberList_11': 'N02',
+        'TreeNumberList_12': 'N02.421', 'TreeNumberList_13': 'N02.421.784'
+    }
+    t0 = datetime.now()
+    res = unflatten(input)
+    print(datetime.now() - t0)
+    assert res == {
+        'TreeNumberList': {
+            '0': 'E02',
+            '1': 'E02.760',
+            '10': 'H02.403.680.600',
+            '11': 'N02',
+            '12': 'N02.421',
+            '13': 'N02.421.784',
+            '2': 'E02.760.169',
+            '3': 'E02.760.169.063',
+            '4': 'E02.760.169.063.500',
+            '5': 'E02',
+            '6': 'E02.831',
+            '7': 'H02',
+            '8': 'H02.403',
+            '9': 'H02.403.680'
+        },
+        'level': '2',
+        'relatedURI': {
+            '0': 'http://www.medvik.cz/link/D012046',
+            '1': 'http://id.nlm.nih.gov/mesh/D012046'
+        },
+        'slug': 'D012046',
+        'title': {'cs': 'rehabilitace', 'en': 'Rehabilitation'}
+    }
 
 
 def test_convert_to_list():
@@ -190,4 +233,57 @@ def test_convert_to_list_3():
         'level': '2',
         'slug': 'O_historie',
         'title': {'cs': 'Historie'}
+    }
+
+
+def test_convert_to_list_4():
+    input = {
+        'TreeNumberList': {
+            '0': 'E02',
+            '1': 'E02.760',
+            '10': 'H02.403.680.600',
+            '11': 'N02',
+            '12': 'N02.421',
+            '13': 'N02.421.784',
+            '2': 'E02.760.169',
+            '3': 'E02.760.169.063',
+            '4': 'E02.760.169.063.500',
+            '5': 'E02',
+            '6': 'E02.831',
+            '7': 'H02',
+            '8': 'H02.403',
+            '9': 'H02.403.680'
+        },
+        'level': '2',
+        'relatedURI': {
+            '0': 'http://www.medvik.cz/link/D012046',
+            '1': 'http://id.nlm.nih.gov/mesh/D012046'
+        },
+        'slug': 'D012046',
+        'title': {'cs': 'rehabilitace', 'en': 'Rehabilitation'}
+    }
+    t0 = datetime.now()
+    res = convert_to_list(input)
+    print(datetime.now() - t0)
+    pprint(res)
+    assert res == {
+        'TreeNumberList': ['E02',
+                           'E02.760',
+                           'E02.760.169',
+                           'E02.760.169.063',
+                           'E02.760.169.063.500',
+                           'E02',
+                           'E02.831',
+                           'H02',
+                           'H02.403',
+                           'H02.403.680',
+                           'H02.403.680.600',
+                           'N02',
+                           'N02.421',
+                           'N02.421.784'],
+        'level': '2',
+        'relatedURI': ['http://www.medvik.cz/link/D012046',
+                       'http://id.nlm.nih.gov/mesh/D012046'],
+        'slug': 'D012046',
+        'title': {'cs': 'rehabilitace', 'en': 'Rehabilitation'}
     }
