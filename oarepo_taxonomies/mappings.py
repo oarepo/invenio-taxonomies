@@ -26,5 +26,4 @@ def taxonomy_term(content=None, **kwargs):
         }
     }
     ret = deepmerge.always_merger.merge(ret, content)
-    ret['type'] = 'object'
     return Mapping(ret, merge=False)
