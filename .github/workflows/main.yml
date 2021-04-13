@@ -37,10 +37,10 @@ jobs:
           stack-version: 7.6.0
       - name: Before_install
         run: |
-          ./before-instal.sh
+          ./before-install.sh
       - name: Install
         run: |
-          ./instal.sh
+          ./install.sh
       - name: Run-tests
         run: |
           ./run-tests.sh
