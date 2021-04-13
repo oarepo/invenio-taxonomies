@@ -30,7 +30,26 @@ The database is initialized using the management task:
 
 `invenio taxonomies init`
 
-## Quick start
+## Config
+
+### Search serializer
+
+Taxonomic facets can only be used if a wrapper (taxonomy_enabled_search) is used to wrap your search serializer in 
+RECORDS_REST_ENDPOINTS. Wrapper takes two positional argument. First is search_serializer and second is enabled 
+taxonomy. Now you can use `taxonomy_term_facet`.
+
+```python
+RECORDS_REST_ENDPOINTS = {
+...
+'search_serializers': {
+            'application/json': taxonomy_enabled_search(json_search, taxonomy_aggs=["degreeGrantor"], 
+                                                        fallback_language),
+        },
+...
+}
+```
+
+## Usage
 
 All functionality is provided by flask-taxonomies. For more details see: 
 [flask-taxonomies](https://pypi.org/project/flask-taxonomies/7.0.0a13/).
