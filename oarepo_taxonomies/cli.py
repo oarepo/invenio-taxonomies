@@ -1,3 +1,5 @@
+import os
+
 import click
 from click import secho
 from flask import cli
@@ -34,18 +36,21 @@ def init_db(create_db=False):
     Base.metadata.create_all(engine)
 
 
-
 @taxonomies.command('import')
-@click.argument('taxonomy_file')
+@click.argument('taxonomy_path')
 @click.option('--int', 'int_conversions', multiple=True)
 @click.option('--str', 'str_args', multiple=True)
 @click.option('--bool', 'bool_args', multiple=True)
 @click.option('--drop/--no-drop', default=False)
 @click.option('--resolve/--no-resolve', default=False)
 @with_appcontext
-def import_taxonomy(taxonomy_file, int_conversions, str_args, bool_args, drop, resolve):
+def import_taxonomy(taxonomy_path, int_conversions, str_args, bool_args, drop, resolve):
     from .import_export import import_taxonomy
-    import_taxonomy(taxonomy_file, int_conversions, str_args, bool_args, drop, resolve_list=resolve)
+    if os.path.isdir(taxonomy_path):
+        for f in os.listdir(taxonomy_path):
+            import_taxonomy(f, int_conversions, str_args, bool_args, drop, resolve_list=resolve)
+
+    import_taxonomy(taxonomy_path, int_conversions, str_args, bool_args, drop, resolve_list=resolve)
 
 
 @taxonomies.command('export')
