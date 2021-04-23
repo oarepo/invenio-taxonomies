@@ -6,6 +6,7 @@ from flask_taxonomies.proxies import current_flask_taxonomies
 from flask_taxonomies.term_identification import TermIdentification
 from flask_taxonomies.views.common import build_descendants
 from flask_taxonomies.views.paginator import Paginator
+from flask import current_app
 
 
 def get_taxonomy_json(code=None,
@@ -60,11 +61,34 @@ def get_taxonomy_json(code=None,
     return paginator
 
 
-# def unlock_term(term_url):
-#     slug, taxonomy_code = get_slug_from_link(term_url)
-#     term_identification = TermIdentification(taxonomy=taxonomy_code, slug=slug)
-#     term = list(current_flask_taxonomies.filter_term(
-#         term_identification))[0]
-#     busy_count_0 = term.busy_count
-#     current_flask_taxonomies.unmark_busy([term.id])
-#     assert term.busy_count < busy_count_0
+def taxonomy_term_to_json(term):
+    """
+    Converts taxonomy term to default JSON. Use only if the term
+    has ancestors pre-populated, otherwise it is not an efficient
+    implementation - use the one from API instead.
+
+    :param term:    term to serialize
+    :return:        array of json terms
+    """
+    ret = []
+
+    while term:
+        data = {
+            **(term.extra_data or {}),
+            'slug': term.slug,
+            'level': term.level + 1,
+        }
+        if term.obsoleted_by_id:
+            data['obsoleted_by'] = term.obsoleted_by.slug
+
+        data['links'] = {
+            'self': 'https://' + \
+                    current_app.config['SERVER_NAME'] + \
+                    current_app.config['FLASK_TAXONOMIES_URL_PREFIX'] + \
+                    term.slug
+        }
+
+        ret.append(data)
+        term = term.parent
+
+    return ret
