@@ -32,7 +32,7 @@ def init_db(create_db=False):
     if db_.session.bind.dialect.name == 'postgresql':
         with engine.connect() as connection:
             connection.execute(
-                "create extension ltree")
+                "create extension if not exists ltree")
     Base.metadata.create_all(engine)
 
 
